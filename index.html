@@ -1,0 +1,1698 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1565C0">
+<title>EYALLINE STOCK PRO — Orient</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Inter',sans-serif;background:#EEF5FF;color:#0d2b5e;min-height:100vh;}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:#DBEAFE;}::-webkit-scrollbar-thumb{background:#1565C0;border-radius:2px;}
+:root{
+  --ob:#1565C0;--ob2:#1976D2;--ob3:#2196F3;--ob4:#42A5F5;
+  --bg:#EEF5FF;--bg2:#FFFFFF;--bg3:#F0F7FF;--bg4:#DBEAFE;
+  --brd:#BFDBFE;--brd2:#93C5FD;
+  --ok:#065f46;--ok2:#10b981;--okbg:#d1fae5;
+  --err:#991b1b;--err2:#ef4444;--errbg:#fee2e2;
+  --warn:#92400e;--warn2:#f59e0b;--warnbg:#fef3c7;
+  --ret:#5b21b6;--ret2:#8b5cf6;--retbg:#ede9fe;
+  --t1:#0d2b5e;--t2:#1e4d8c;--t3:#4a6a96;--t4:#93afd6;
+  --mono:'JetBrains Mono',monospace;
+  --sh:0 2px 12px rgba(21,101,192,.10);
+  --sh2:0 4px 24px rgba(21,101,192,.15);
+}
+@keyframes slideDown{from{transform:translateY(-100%);opacity:0}to{transform:translateY(0);opacity:1}}
+.app{display:flex;flex-direction:column;min-height:100vh;max-width:480px;margin:0 auto;background:var(--bg);}
+.screen{display:none;flex-direction:column;min-height:100vh;}
+.screen.active{display:flex;}
+
+/* AUTH */
+.auth-bg{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:100vh;padding:28px 22px;
+  background:linear-gradient(160deg,#1565C0 0%,#1976D2 45%,#2196F3 100%);
+  position:relative;overflow:hidden;
+}
+.auth-bg::before{content:'';position:absolute;top:-100px;right:-80px;width:280px;height:280px;border-radius:50%;background:rgba(255,255,255,.08);}
+.auth-bg::after{content:'';position:absolute;bottom:-80px;left:-60px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.06);}
+.brand-wrap{display:flex;flex-direction:column;align-items:center;margin-bottom:26px;position:relative;z-index:1;}
+.brand-logo-box{
+  width:110px;height:110px;background:#fff;border-radius:28px;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:16px;padding:8px;
+  box-shadow:0 10px 40px rgba(0,0,0,.2),0 0 0 5px rgba(255,255,255,.25);
+  cursor:default;
+}
+.brand-logo-box img{width:94px;height:94px;object-fit:contain;}
+.brand-name{font-size:22px;font-weight:800;color:#fff;letter-spacing:3px;text-transform:uppercase;}
+.brand-sub{font-size:11px;color:rgba(255,255,255,.75);letter-spacing:2.5px;text-transform:uppercase;margin-top:3px;}
+.brand-orient{font-size:11px;color:rgba(255,255,255,.6);margin-top:10px;display:flex;align-items:center;gap:8px;}
+.brand-orient::before,.brand-orient::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.25);}
+.auth-card{width:100%;background:#fff;border-radius:22px;padding:26px;box-shadow:0 20px 60px rgba(0,0,0,.18);position:relative;z-index:1;}
+.auth-title{font-size:15px;font-weight:700;color:var(--t1);text-align:center;margin-bottom:18px;}
+.lbl{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:7px;display:block;}
+select.inp,input.inp{width:100%;padding:13px 14px;background:var(--bg3);border:1.5px solid var(--brd);border-radius:12px;color:var(--t1);font-size:14px;outline:none;margin-bottom:16px;font-family:'Inter',sans-serif;transition:border-color .2s,box-shadow .2s;}
+select.inp:focus,input.inp:focus{border-color:var(--ob);box-shadow:0 0 0 3px rgba(21,101,192,.12);}
+select.inp option{background:#fff;}
+.pin-dots{display:flex;gap:14px;justify-content:center;margin-bottom:18px;}
+.pin-dot{width:14px;height:14px;border-radius:50%;background:var(--brd2);transition:all .2s;border:2px solid var(--brd);}
+.pin-dot.filled{background:var(--ob);border-color:var(--ob);box-shadow:0 0 0 3px rgba(21,101,192,.2);}
+.pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;}
+.pin-btn{padding:17px;background:var(--bg3);border:1.5px solid var(--brd);border-radius:12px;color:var(--t1);font-size:21px;font-weight:600;cursor:pointer;font-family:var(--mono);transition:all .15s;}
+.pin-btn:active{background:var(--ob);border-color:var(--ob);color:#fff;transform:scale(.93);}
+.pin-zero{grid-column:2;}
+.err{color:#991b1b;font-size:12px;margin-bottom:12px;padding:9px 12px;background:#fee2e2;border-radius:8px;border:1px solid #fca5a5;display:none;}
+.err.show{display:block;}
+.secret-box{display:none;margin-bottom:16px;background:var(--bg4);border:2px solid var(--ob);border-radius:14px;padding:14px;}
+.secret-box-title{font-size:11px;font-weight:700;color:var(--ob);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;}
+.secret-row{display:flex;gap:8px;}
+.secret-row input{flex:1;margin-bottom:0;}
+.secret-btn{padding:12px 16px;background:var(--ob);border:none;border-radius:11px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;flex-shrink:0;}
+
+/* HEADER */
+.hdr{background:#fff;border-bottom:2px solid var(--ob);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:var(--sh2);}
+.hdr-l{display:flex;align-items:center;gap:10px;}
+.hdr-logo{width:44px;height:44px;background:#fff;border-radius:11px;border:1.5px solid var(--brd);display:flex;align-items:center;justify-content:center;padding:3px;box-shadow:var(--sh);}
+.hdr-logo img{width:36px;height:36px;object-fit:contain;}
+.hdr-name{font-size:15px;font-weight:800;color:var(--ob);letter-spacing:.3px;}
+.hdr-sub{font-size:10px;color:var(--t3);}
+.hdr-btns{display:flex;gap:7px;align-items:center;}
+.fb-live{padding:4px 10px;border-radius:20px;font-size:10px;font-weight:700;background:var(--okbg);border:1px solid var(--ok2);color:var(--ok);display:none;}
+.hdr-pill{background:var(--bg4);border:1.5px solid var(--brd2);border-radius:20px;padding:5px 12px;display:flex;align-items:center;gap:6px;cursor:pointer;}
+.hdr-dot{width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px rgba(34,197,94,.5);}
+.hdr-uname{font-size:12px;color:var(--ob);font-weight:600;}
+.hdr-btn{width:36px;height:36px;background:var(--bg3);border:1.5px solid var(--brd);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;}
+
+/* NAV */
+.nav{background:#fff;border-top:2px solid var(--ob);display:flex;position:sticky;bottom:0;z-index:100;box-shadow:0 -4px 20px rgba(21,101,192,.1);}
+.nav-item{flex:1;padding:11px 4px 8px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;border-top:3px solid transparent;margin-top:-2px;transition:all .2s;}
+.nav-item.active{border-top-color:var(--ob);background:linear-gradient(180deg,rgba(21,101,192,.05),transparent);}
+.nav-item .ni{font-size:21px;}
+.nav-item .nl{font-size:9px;font-weight:700;color:var(--t4);text-transform:uppercase;letter-spacing:.3px;}
+.nav-item.active .nl{color:var(--ob);}
+
+/* CONTENT */
+.content{flex:1;overflow-y:auto;}
+
+/* DASHBOARD */
+.dash-hero{padding:22px 18px;background:linear-gradient(135deg,#1565C0 0%,#1976D2 55%,#2196F3 100%);position:relative;overflow:hidden;}
+.dash-hero::after{content:'';position:absolute;right:-30px;bottom:-30px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.07);}
+.dash-hero::before{content:'';position:absolute;top:-20px;left:-20px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,.05);}
+.dash-date{font-size:11px;color:rgba(255,255,255,.7);margin-bottom:4px;}
+.dash-greet{font-size:23px;font-weight:800;color:#fff;}
+.dash-orient{font-size:11px;color:rgba(255,255,255,.7);margin-top:3px;display:flex;align-items:center;gap:6px;}
+.orient-badge{background:rgba(255,255,255,.2);border-radius:20px;padding:2px 10px;font-size:10px;font-weight:700;color:#fff;letter-spacing:.5px;}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px;}
+.stat{background:#fff;border-radius:14px;padding:16px;box-shadow:var(--sh);border:1px solid var(--brd);position:relative;overflow:hidden;}
+.stat::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:2px 2px 0 0;}
+.stat.s1::before{background:linear-gradient(90deg,#1565C0,#2196F3);}
+.stat.s2::before{background:linear-gradient(90deg,#065f46,#10b981);}
+.stat.s3::before{background:linear-gradient(90deg,#d97706,#f59e0b);}
+.stat.s4::before{background:linear-gradient(90deg,#7c3aed,#8b5cf6);}
+.stat-icon{font-size:24px;margin-bottom:7px;}
+.stat-val{font-size:24px;font-weight:800;color:var(--t1);font-family:var(--mono);}
+.stat-lbl{font-size:10px;color:var(--t3);margin-top:2px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
+.sec-title{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:1.5px;padding:14px 16px 8px;display:flex;align-items:center;gap:8px;}
+.sec-title::after{content:'';flex:1;height:1.5px;background:var(--brd);}
+
+/* MOVE ITEMS */
+.mv-item{display:flex;align-items:center;gap:11px;padding:12px 16px;border-bottom:1px solid var(--bg4);background:#fff;}
+.mv-item:active{background:var(--bg4);}
+.mv-badge{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.mbi-entree{background:var(--okbg);}.mbi-sortie{background:var(--errbg);}.mbi-retour{background:var(--retbg);}.mbi-edit{background:var(--warnbg);}.mbi-modification{background:#fce7f3;}
+.mvq-modification{color:#be185d;}
+.mv-num{font-size:9px;font-family:var(--mono);color:var(--ob);font-weight:700;background:var(--bg4);border:1px solid var(--brd2);border-radius:5px;padding:1px 6px;display:inline-block;margin-bottom:2px;}
+.mod-trace{font-size:10px;color:#be185d;font-style:italic;background:#fce7f3;border-radius:5px;padding:3px 7px;margin-top:2px;border-left:2px solid #ec4899;}
+.btn-modif{padding:4px 9px;background:#fce7f3;border:1px solid #f9a8d4;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;color:#be185d;font-family:Inter,sans-serif;white-space:nowrap;}
+.mv-info{flex:1;min-width:0;}
+.mv-ref{font-size:10px;font-family:var(--mono);color:var(--ob);font-weight:700;}
+.mv-desc{font-size:13px;color:var(--t1);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mv-meta{font-size:10px;color:var(--t3);}
+.mv-qty{font-size:16px;font-weight:700;font-family:var(--mono);text-align:right;}
+.mvq-entree{color:var(--ok);}.mvq-sortie{color:var(--err2);}.mvq-retour{color:var(--ret2);}.mvq-edit{color:var(--warn2);}
+.mv-after{font-size:10px;color:var(--t3);text-align:right;}
+
+/* STOCK */
+.search-wrap{padding:10px 14px;background:var(--bg);position:sticky;top:0;z-index:50;}
+.s-rel{position:relative;}
+.s-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--t3);}
+.s-inp{width:100%;padding:11px 14px 11px 40px;background:#fff;border:1.5px solid var(--brd);border-radius:12px;color:var(--t1);font-size:13px;outline:none;font-family:'Inter',sans-serif;box-shadow:var(--sh);transition:border-color .2s;}
+.s-inp:focus{border-color:var(--ob);box-shadow:0 0 0 3px rgba(21,101,192,.1);}
+.s-inp::placeholder{color:var(--t4);}
+.art-item{display:flex;align-items:center;padding:12px 16px;border-bottom:1px solid var(--bg4);background:#fff;cursor:pointer;}
+.art-item:active{background:var(--bg4);}
+.art-ref{background:var(--bg4);border-radius:7px;padding:3px 8px;font-size:10px;font-family:var(--mono);color:var(--ob);font-weight:700;white-space:nowrap;margin-right:10px;flex-shrink:0;border:1px solid var(--brd2);}
+.art-name{flex:1;font-size:13px;color:var(--t1);line-height:1.35;min-width:0;}
+.art-qty{font-size:15px;font-weight:700;font-family:var(--mono);margin-left:10px;flex-shrink:0;}
+.aq-h{color:var(--ok);}.aq-m{color:var(--warn2);}.aq-l{color:var(--err2);}
+
+/* FORM */
+.form-pad{padding:14px;}
+.fsec{background:#fff;border:1.5px solid var(--brd);border-radius:14px;padding:16px;margin-bottom:12px;box-shadow:var(--sh);}
+.fsec-title{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;}
+.f-inp{width:100%;padding:11px 13px;background:var(--bg3);border:1.5px solid var(--brd);border-radius:10px;color:var(--t1);font-size:14px;outline:none;margin-bottom:10px;font-family:'Inter',sans-serif;transition:border-color .2s;}
+.f-inp:focus{border-color:var(--ob);box-shadow:0 0 0 3px rgba(21,101,192,.1);}
+.f-inp::placeholder{color:var(--t4);}
+.sugg-list{background:#fff;border:1.5px solid var(--brd);border-radius:10px;max-height:190px;overflow-y:auto;margin-bottom:10px;box-shadow:var(--sh2);}
+.sugg-item{padding:11px 13px;border-bottom:1px solid var(--bg4);cursor:pointer;}
+.sugg-item:last-child{border-bottom:none;}
+.sugg-item:active{background:var(--bg4);}
+.sugg-ref{font-size:10px;font-family:var(--mono);color:var(--ob);font-weight:700;}
+.sugg-name{font-size:12px;color:var(--t1);margin-top:1px;}
+.sugg-stk{font-size:10px;color:var(--t3);margin-top:1px;}
+.art-sel{background:var(--bg4);border:1.5px solid var(--brd2);border-radius:10px;padding:12px 13px;margin-bottom:10px;}
+.art-sel-ref{font-size:10px;font-family:var(--mono);color:var(--ob);font-weight:700;}
+.art-sel-name{font-size:13px;font-weight:600;color:var(--t1);margin-top:2px;}
+.art-sel-stk{font-size:11px;color:var(--t3);margin-top:3px;}
+.qty-row{display:flex;align-items:center;gap:9px;margin-bottom:10px;}
+.qty-btn{width:46px;height:46px;background:#fff;border:1.5px solid var(--brd);border-radius:10px;color:var(--t1);font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:var(--sh);transition:all .15s;}
+.qty-btn:active{background:var(--ob);color:#fff;border-color:var(--ob);}
+.qty-inp{flex:1;padding:12px;background:#fff;border:1.5px solid var(--brd);border-radius:10px;color:var(--t1);font-size:20px;font-weight:700;text-align:center;outline:none;font-family:var(--mono);box-shadow:var(--sh);}
+.qty-inp:focus{border-color:var(--ob);box-shadow:0 0 0 3px rgba(21,101,192,.1);}
+.warn-box{color:var(--warn);font-size:12px;margin-bottom:10px;padding:9px 12px;background:var(--warnbg);border-radius:8px;border:1px solid #fcd34d;}
+.btn-sub{width:100%;padding:15px;border:none;border-radius:13px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.12);}
+.btn-sub:disabled{opacity:.35;cursor:not-allowed;}
+.bse{background:linear-gradient(135deg,#047857,#065f46);}
+.bss{background:linear-gradient(135deg,#dc2626,#991b1b);}
+.bsr{background:linear-gradient(135deg,#7c3aed,#5b21b6);}
+
+/* TOAST */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);padding:11px 22px;border-radius:12px;font-size:13px;font-weight:700;z-index:999;white-space:nowrap;opacity:0;transition:opacity .3s;pointer-events:none;box-shadow:0 8px 32px rgba(0,0,0,.12);}
+.toast.show{opacity:1;}
+.te{background:var(--okbg);border:1.5px solid var(--ok2);color:var(--ok);}
+.ts{background:var(--errbg);border:1.5px solid #ef4444;color:var(--err);}
+.tr{background:var(--retbg);border:1.5px solid #8b5cf6;color:var(--ret);}
+.tw{background:var(--warnbg);border:1.5px solid #f59e0b;color:var(--warn);}
+
+/* HIST */
+.hist-filters{display:flex;gap:7px;padding:10px 14px;overflow-x:auto;scrollbar-width:none;background:var(--bg);}
+.hist-filters::-webkit-scrollbar{display:none;}
+.chip{padding:6px 13px;background:#fff;border:1.5px solid var(--brd);border-radius:20px;font-size:11px;font-weight:600;color:var(--t3);cursor:pointer;white-space:nowrap;flex-shrink:0;box-shadow:var(--sh);}
+.chip.on{background:var(--ob);border-color:var(--ob);color:#fff;box-shadow:0 4px 12px rgba(21,101,192,.3);}
+
+/* ADMIN */
+.adm-pad{padding:14px;}
+.adm-sec{background:#fff;border:1.5px solid var(--brd);border-radius:14px;margin-bottom:12px;overflow:hidden;box-shadow:var(--sh);}
+.adm-sec-hdr{padding:13px 15px;border-bottom:1.5px solid var(--brd);display:flex;align-items:center;justify-content:space-between;background:var(--bg3);}
+.adm-sec-title{font-size:13px;font-weight:700;color:var(--t1);}
+.btn-xs{padding:6px 14px;background:var(--ob);border:none;border-radius:8px;color:#fff;font-size:11px;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(21,101,192,.3);}
+.u-item{padding:13px 15px;border-bottom:1px solid var(--bg4);display:flex;align-items:center;gap:10px;background:#fff;}
+.u-item:active{background:var(--bg4);}
+.u-av{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--ob),var(--ob3));display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;flex-shrink:0;box-shadow:0 4px 12px rgba(21,101,192,.25);}
+.u-name{font-size:13px;font-weight:700;color:var(--t1);}
+.u-info{font-size:10px;color:var(--t3);margin-top:1px;}
+.u-badge{padding:3px 9px;border-radius:6px;font-size:9px;font-weight:700;}
+.ub-admin{background:var(--bg4);color:var(--ob);border:1px solid var(--brd2);}
+.ub-mag{background:var(--okbg);color:var(--ok);border:1px solid #6ee7b7;}
+.ub-lecteur{background:#f3f4f6;color:#6b7280;border:1px solid #d1d5db;}
+.u-status{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;margin-left:6px;}
+.tgl{padding:4px 10px;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;border:1.5px solid;font-family:'Inter',sans-serif;}
+.tgl-on{background:var(--okbg);border-color:var(--ok2);color:var(--ok);}
+.tgl-off{background:var(--errbg);border-color:#ef4444;color:var(--err);}
+.pwd-reveal{font-family:var(--mono);font-size:10px;color:var(--t3);background:var(--bg4);border:1px solid var(--brd);border-radius:5px;padding:2px 8px;cursor:pointer;}
+.pwd-reveal:hover{color:var(--ob);}
+
+/* PROFILE */
+.profile-pad{padding:14px;}
+.profile-card{background:#fff;border:1.5px solid var(--brd);border-radius:16px;padding:22px;margin-bottom:12px;text-align:center;box-shadow:var(--sh);overflow:hidden;position:relative;}
+.profile-card::before{content:'';position:absolute;top:0;left:0;right:0;height:80px;background:linear-gradient(135deg,#1565C0,#2196F3);}
+.profile-av{width:68px;height:68px;border-radius:18px;background:linear-gradient(135deg,var(--ob),var(--ob3));display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:#fff;margin:12px auto 12px;position:relative;z-index:1;box-shadow:0 4px 20px rgba(21,101,192,.35);border:3px solid #fff;}
+.profile-name{font-size:20px;font-weight:800;color:var(--t1);}
+.profile-role{font-size:11px;color:var(--t3);margin-top:3px;text-transform:uppercase;letter-spacing:1px;}
+.sep{height:1.5px;background:var(--brd);margin:14px 0;}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(13,43,94,.45);z-index:200;display:none;align-items:flex-end;backdrop-filter:blur(4px);}
+.overlay.show{display:flex;}
+.modal{background:#fff;border-top-left-radius:24px;border-top-right-radius:24px;width:100%;max-height:93vh;overflow-y:auto;padding:22px;border-top:3px solid var(--ob);box-shadow:0 -20px 60px rgba(13,43,94,.12);}
+.mhandle{width:40px;height:4px;background:var(--brd2);border-radius:2px;margin:0 auto 20px;}
+.mtitle{font-size:18px;font-weight:800;color:var(--t1);margin-bottom:18px;}
+.btn-cancel{width:100%;padding:13px;background:var(--bg3);border:1.5px solid var(--brd);border-radius:12px;color:var(--t2);font-size:14px;font-weight:600;cursor:pointer;margin-top:9px;font-family:'Inter',sans-serif;}
+.det-ref{font-size:11px;font-family:var(--mono);color:var(--ob);font-weight:700;margin-bottom:4px;}
+.det-name{font-size:16px;font-weight:700;color:var(--t1);line-height:1.3;margin-bottom:12px;}
+.mv-btns3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:16px;}
+.mvb{padding:12px 4px;border:none;border-radius:11px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;box-shadow:0 4px 12px rgba(0,0,0,.1);}
+.edit-section{background:var(--warnbg);border:1.5px solid #fcd34d;border-radius:10px;padding:13px;margin-bottom:12px;}
+.edit-title{font-size:10px;font-weight:700;color:var(--warn);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;}
+.empty{text-align:center;padding:50px 20px;color:var(--t3);}
+.empty-icon{font-size:44px;margin-bottom:10px;}
+.info-box{padding:14px;font-size:12px;color:var(--t2);line-height:1.9;}
+.save-ind{position:fixed;top:66px;right:12px;background:var(--okbg);border:1.5px solid var(--ok2);border-radius:8px;padding:5px 11px;font-size:10px;font-weight:700;color:var(--ok);z-index:150;opacity:0;transition:opacity .3s;pointer-events:none;box-shadow:var(--sh);}
+.save-ind.show{opacity:1;}
+</style>
+<link rel="manifest" id="pwa-manifest">
+<link rel="apple-touch-icon" id="apple-icon">
+<meta name="apple-mobile-web-app-title" content="Orient Stock">
+<meta name="application-name" content="Orient Stock">
+<script>
+// Create icon blob from base64
+const iconB64 = "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";
+const iconBlob = 'data:image/png;base64,'+iconB64;
+
+// Set apple touch icon
+const appleIcon = document.getElementById('apple-icon');
+appleIcon.href = iconBlob;
+
+// Create PWA manifest dynamically
+const manifest = {
+  name: "EYALLINE STOCK PRO",
+  short_name: "Orient Stock",
+  description: "Gestion de stock Orient Electronics",
+  start_url: "/eyalline-stock-pro.html",
+  display: "standalone",
+  background_color: "#1565C0",
+  theme_color: "#1565C0",
+  orientation: "portrait",
+  icons: [
+    {
+      src: iconBlob,
+      sizes: "192x192",
+      type: "image/png",
+      purpose: "any maskable"
+    },
+    {
+      src: iconBlob,
+      sizes: "512x512",
+      type: "image/png",
+      purpose: "any maskable"
+    }
+  ]
+};
+
+const blob = new Blob([JSON.stringify(manifest)], {type:'application/json'});
+const url = URL.createObjectURL(blob);
+document.getElementById('pwa-manifest').href = url;
+</script>
+</head>
+<body>
+<div class="app">
+
+<!-- AUTH -->
+<div class="screen active" id="sc-auth">
+  <div class="auth-bg">
+    <div class="brand-wrap">
+      <div class="brand-logo-box" onclick="secretTap()">
+        <img src="data:image/png;base64,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" alt="Orient">
+      </div>
+      <div class="brand-name">EYALLINE STOCK PRO</div>
+      <div class="brand-sub">Gestion de stock</div>
+      <div class="brand-orient">Orient Electronics · Usine</div>
+    </div>
+    <div class="auth-card">
+      <div class="auth-title">🔐 Connexion sécurisée</div>
+      <div class="secret-box" id="secret-login">
+        <div class="secret-box-title">🔑 Accès administrateur</div>
+        <label class="lbl">Votre prénom</label>
+        <div class="secret-row">
+          <input class="inp" id="secret-id" placeholder="Votre prénom..." style="margin-bottom:0;" autocomplete="off" autocorrect="off" autocapitalize="off" onkeydown="if(event.key==='Enter')validateSecretId()">
+          <button class="secret-btn" onclick="validateSecretId()">→</button>
+        </div>
+      </div>
+      <label class="lbl">Sélectionnez votre compte</label>
+      <select class="inp" id="auth-sel">
+        <option value="">— Choisir un utilisateur —</option>
+      </select>
+      <div id="pin-sec" style="display:none">
+        <label class="lbl">Code PIN (4 chiffres)</label>
+        <div class="pin-dots" id="pin-dots">
+          <div class="pin-dot" id="d0"></div><div class="pin-dot" id="d1"></div>
+          <div class="pin-dot" id="d2"></div><div class="pin-dot" id="d3"></div>
+        </div>
+        <div class="err" id="auth-err">Code PIN incorrect</div>
+        <div class="pin-grid">
+          <button class="pin-btn" onclick="addPin('1')">1</button>
+          <button class="pin-btn" onclick="addPin('2')">2</button>
+          <button class="pin-btn" onclick="addPin('3')">3</button>
+          <button class="pin-btn" onclick="addPin('4')">4</button>
+          <button class="pin-btn" onclick="addPin('5')">5</button>
+          <button class="pin-btn" onclick="addPin('6')">6</button>
+          <button class="pin-btn" onclick="addPin('7')">7</button>
+          <button class="pin-btn" onclick="addPin('8')">8</button>
+          <button class="pin-btn" onclick="addPin('9')">9</button>
+          <div></div>
+          <button class="pin-btn pin-zero" onclick="addPin('0')">0</button>
+          <button class="pin-btn" onclick="delPin()">⌫</button>
+        </div>
+      </div>
+      <div id="secret-trigger" style="height:20px;cursor:default;" onclick="secretTap()"></div>
+    </div>
+    <div style="margin-top:16px;font-size:10px;color:rgba(255,255,255,.5);text-align:center;z-index:1;position:relative;">EYALLINE STOCK PRO v4.0 · Firebase 🔥 · Données permanentes</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="screen" id="sc-main" style="flex-direction:column">
+  <div class="hdr">
+    <div class="hdr-l">
+      <div class="hdr-logo">
+        <img src="data:image/png;base64,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" alt="Orient">
+      </div>
+      <div>
+        <div class="hdr-name">EYALLINE STOCK PRO</div>
+        <div class="hdr-sub">Orient Electronics</div>
+      </div>
+    </div>
+    <div class="hdr-btns">
+      <div class="fb-live" id="fb-status">🔥 Live</div>
+      <div class="hdr-pill" id="hdr-user-pill" onclick="goTab('profil')">
+        <div class="hdr-dot" id="hdr-dot"></div>
+        <div class="hdr-uname" id="hdr-uname">—</div>
+      </div>
+      <div class="hdr-btn" onclick="logout()">🚪</div>
+    </div>
+  </div>
+  <div class="content" id="main-content"></div>
+  <div class="nav">
+    <div class="nav-item active" id="nav-dashboard" onclick="goTab('dashboard')"><span class="ni">🏠</span><span class="nl">Accueil</span></div>
+    <div class="nav-item" id="nav-stock" onclick="goTab('stock')"><span class="ni">📦</span><span class="nl">Stock</span></div>
+    <div class="nav-item" id="nav-mouvement" onclick="goTab('mouvement')"><span class="ni">🔄</span><span class="nl">Mouvement</span></div>
+    <div class="nav-item" id="nav-historique" onclick="goTab('historique')"><span class="ni">📋</span><span class="nl">Historique</span></div>
+    <div class="nav-item" id="nav-admin" onclick="goTab('admin')" style="display:none"><span class="ni">⚙️</span><span class="nl">Admin</span></div>
+    <div class="nav-item" id="nav-profil" onclick="goTab('profil')"><span class="ni">👤</span><span class="nl">Profil</span></div>
+  </div>
+</div>
+
+<!-- MODAL DETAIL -->
+<div class="overlay" id="mod-detail">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
+      <div style="flex:1;margin-right:12px;"><div class="det-ref" id="det-ref"></div><div class="det-name" id="det-name"></div></div>
+      <div><div style="font-size:28px;font-weight:800;font-family:var(--mono);color:var(--t1);" id="det-qty"></div><div style="font-size:10px;color:var(--t3);text-align:right;">pcs en stock</div></div>
+    </div>
+    <div class="mv-btns3">
+      <button class="mvb" style="background:linear-gradient(135deg,#047857,#065f46)" onclick="detMv('entree')">📥 Entrée</button>
+      <button class="mvb" style="background:linear-gradient(135deg,#dc2626,#991b1b)" onclick="detMv('sortie')">📤 Sortie</button>
+      <button class="mvb" style="background:linear-gradient(135deg,#7c3aed,#5b21b6)" onclick="detMv('retour')">🔄 Retour</button>
+    </div>
+    <div class="edit-section">
+      <div class="edit-title">⚠️ Correction de stock (erreur)</div>
+      <label class="lbl">Nouvelle quantité réelle</label>
+      <div style="display:flex;gap:8px;margin-bottom:8px;">
+        <input class="f-inp" id="edit-qty" type="number" min="0" placeholder="Ex: 150" style="margin-bottom:0;flex:1;">
+        <button onclick="submitEdit()" style="padding:11px 16px;background:linear-gradient(135deg,#d97706,#b45309);border:none;border-radius:9px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">Corriger</button>
+      </div>
+      <label class="lbl">Motif obligatoire</label>
+      <input class="f-inp" id="edit-note" placeholder="Motif de correction..." style="margin-bottom:4px;">
+      <div style="font-size:10px;color:var(--warn);">⚠ Toute correction est tracée définitivement.</div>
+    </div>
+    <div class="sec-title" style="padding:0 0 8px;">Historique de l'article</div>
+    <div id="det-hist"></div>
+    <button class="btn-cancel" onclick="closeModal('mod-detail')">Fermer</button>
+  </div>
+</div>
+
+<!-- MODAL AJOUT USER -->
+<div class="overlay" id="mod-adduser">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mtitle">➕ Ajouter un utilisateur</div>
+    <div class="err" id="au-err"></div>
+    <label class="lbl">Prénom</label><input class="inp" id="au-prenom" placeholder="Ahmed">
+    <label class="lbl">Nom</label><input class="inp" id="au-nom" placeholder="Benali">
+    <label class="lbl">Qualification / Poste</label><input class="inp" id="au-qual" placeholder="Magasinier principal">
+    <label class="lbl">Rôle</label>
+    <select class="inp" id="au-role"><option value="magasinier">Magasinier</option><option value="admin">Administrateur</option><option value="lecteur">Lecteur (lecture seule)</option></select>
+    <label class="lbl">Code PIN (4 chiffres)</label>
+    <input class="inp" id="au-pin" type="password" maxlength="4" placeholder="••••">
+    <button class="btn-sub bse" onclick="saveUser()">✅ Créer l'utilisateur</button>
+    <button class="btn-cancel" onclick="closeModal('mod-adduser')">Annuler</button>
+  </div>
+</div>
+
+<!-- MODAL MODIFIER USER -->
+<div class="overlay" id="mod-edituser">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mtitle">✏️ Modifier l'utilisateur</div>
+    <input type="hidden" id="eu-id">
+    <div class="err" id="eu-err"></div>
+    <label class="lbl">Prénom</label><input class="inp" id="eu-prenom">
+    <label class="lbl">Nom</label><input class="inp" id="eu-nom">
+    <label class="lbl">Qualification / Poste</label><input class="inp" id="eu-qual">
+    <label class="lbl">Rôle</label>
+    <select class="inp" id="eu-role"><option value="magasinier">Magasinier</option><option value="admin">Administrateur</option><option value="lecteur">Lecteur (lecture seule)</option></select>
+    <label class="lbl">Nouveau PIN (optionnel)</label>
+    <input class="inp" id="eu-pin" type="password" maxlength="4" placeholder="••••">
+    <div id="eu-pin-hint" style="font-size:10px;color:var(--t3);margin-bottom:14px;margin-top:-10px;">Laisser vide = PIN inchangé</div>
+    <button class="btn-sub" style="background:linear-gradient(135deg,var(--ob2),var(--ob))" onclick="saveEditUser()">✅ Enregistrer</button>
+    <button class="btn-cancel" onclick="closeModal('mod-edituser')">Annuler</button>
+  </div>
+</div>
+
+<!-- MODAL SUPPRIMER USER -->
+<div class="overlay" id="mod-deluser">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mtitle">🗑️ Supprimer un utilisateur</div>
+    <input type="hidden" id="del-id">
+    <div class="err" id="del-err"></div>
+    <div style="background:var(--errbg);border:1.5px solid #fca5a5;border-radius:12px;padding:18px;margin-bottom:18px;text-align:center;">
+      <div style="font-size:36px;margin-bottom:8px;">⚠️</div>
+      <div style="font-size:14px;color:var(--err);font-weight:700;">Supprimer définitivement</div>
+      <div style="font-size:16px;color:var(--err2);font-weight:800;margin-top:6px;" id="del-name"></div>
+      <div style="font-size:12px;color:#b91c1c;margin-top:8px;line-height:1.5;">Cette action est irréversible.<br>L'historique des mouvements sera conservé.</div>
+    </div>
+    <button class="btn-sub bss" onclick="deleteUser()">🗑️ Confirmer la suppression</button>
+    <button class="btn-cancel" onclick="closeModal('mod-deluser')">Annuler</button>
+  </div>
+</div>
+
+<!-- MODAL CHANGER PIN -->
+<div class="overlay" id="mod-pin">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mtitle">🔑 Changer mon code PIN</div>
+    <div class="err" id="pin-err"></div>
+    <label class="lbl">Ancien code PIN</label><input class="inp" id="old-pin" type="password" maxlength="4" placeholder="••••">
+    <label class="lbl">Nouveau code PIN</label><input class="inp" id="new-pin" type="password" maxlength="4" placeholder="••••">
+    <label class="lbl">Confirmer nouveau PIN</label><input class="inp" id="new-pin2" type="password" maxlength="4" placeholder="••••">
+    <button class="btn-sub bsr" onclick="savePin()">🔑 Changer le PIN</button>
+    <button class="btn-cancel" onclick="closeModal('mod-pin')">Annuler</button>
+  </div>
+</div>
+
+<div class="save-ind" id="save-ind">✓ Sauvegardé</div>
+<div class="toast" id="toast"></div>
+
+<!-- MODAL MODIFICATION HISTORIQUE -->
+<div class="overlay" id="mod-modify">
+  <div class="modal">
+    <div class="mhandle"></div>
+    <div class="mtitle">✏️ Modifier un mouvement</div>
+
+    <!-- Mouvement original -->
+    <div style="background:#fce7f3;border:1.5px solid #f9a8d4;border-radius:12px;padding:14px;margin-bottom:14px;">
+      <div style="font-size:10px;font-weight:700;color:#be185d;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;">🔒 Mouvement original</div>
+      <div style="font-size:11px;font-family:var(--mono);color:var(--ob);font-weight:700;" id="mmod-num"></div>
+      <div style="display:flex;gap:14px;margin-top:6px;flex-wrap:wrap;">
+        <div><div style="font-size:9px;color:var(--t3);text-transform:uppercase;">Type</div><div style="font-size:12px;font-weight:700;color:#be185d;" id="mmod-type"></div></div>
+        <div><div style="font-size:9px;color:var(--t3);text-transform:uppercase;">Article</div><div style="font-size:11px;font-weight:700;color:var(--ob);font-family:var(--mono);" id="mmod-ref"></div><div style="font-size:11px;color:var(--t1);" id="mmod-name"></div></div>
+        <div><div style="font-size:9px;color:var(--t3);text-transform:uppercase;">Qté / Stock</div><div style="font-size:12px;font-weight:700;color:var(--t1);" id="mmod-orig-qty"></div><div style="font-size:10px;color:var(--t3);" id="mmod-orig-stock"></div></div>
+      </div>
+      <div style="font-size:10px;color:var(--t3);margin-top:6px;"><span id="mmod-orig-user"></span> · <span id="mmod-orig-date"></span></div>
+    </div>
+
+    <div style="background:#fffbeb;border:1.5px solid #fcd34d;border-radius:10px;padding:10px;margin-bottom:14px;font-size:11px;color:#92400e;">
+      ⚠️ La modification crée un nouveau mouvement tracé. L'original reste intact avec un lien de référence.
+    </div>
+
+    <div class="err" id="mmod-err" style="display:none;margin-bottom:10px;"></div>
+
+    <!-- Choix : que modifier ? -->
+    <label class="lbl">Que voulez-vous modifier ?</label>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
+      <button id="mmod-tab-qty" onclick="mmodTab('qty')" style="padding:11px 6px;border-radius:10px;border:2px solid var(--ob);background:var(--bg4);color:var(--ob);font-size:12px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;">📦 Quantité</button>
+      <button id="mmod-tab-art" onclick="mmodTab('art')" style="padding:11px 6px;border-radius:10px;border:2px solid var(--brd);background:#fff;color:var(--t3);font-size:12px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;">🔁 Article</button>
+    </div>
+
+    <!-- Panneau Quantité -->
+    <div id="mmod-pane-qty">
+      <label class="lbl">Nouvelle quantité (stock résultant)</label>
+      <input class="inp" id="mmod-new-qty" type="number" min="0" placeholder="Ex: 150">
+    </div>
+
+    <!-- Panneau Article -->
+    <div id="mmod-pane-art" style="display:none;">
+      <label class="lbl">Nouvel article</label>
+      <input class="inp" id="mmod-art-search" placeholder="Rechercher réf. ou désignation..." oninput="mmodSearchArt(this.value)" autocomplete="off" autocorrect="off" autocapitalize="off">
+      <div id="mmod-art-sugg"></div>
+      <div id="mmod-art-sel" style="display:none;background:var(--bg4);border:1.5px solid var(--brd2);border-radius:10px;padding:11px 13px;margin-bottom:10px;">
+        <div id="mmod-art-sel-ref" style="font-size:10px;font-family:var(--mono);color:var(--ob);font-weight:700;"></div>
+        <div id="mmod-art-sel-name" style="font-size:13px;font-weight:600;color:var(--t1);margin-top:2px;"></div>
+        <div id="mmod-art-sel-stk" style="font-size:11px;color:var(--t3);margin-top:2px;"></div>
+        <button onclick="mmodClearArt()" style="margin-top:6px;padding:5px 10px;background:var(--bg3);border:1px solid var(--brd);border-radius:7px;color:var(--t2);font-size:11px;cursor:pointer;font-family:Inter,sans-serif;">✕ Changer</button>
+      </div>
+      <label class="lbl">Quantité pour le nouvel article</label>
+      <input class="inp" id="mmod-new-qty-art" type="number" min="0" placeholder="Ex: 50">
+    </div>
+
+    <label class="lbl">Motif de modification (obligatoire)</label>
+    <input class="inp" id="mmod-note" placeholder="Ex: Erreur de saisie, mauvais article...">
+    <button class="btn-sub" style="background:linear-gradient(135deg,#be185d,#9d174d)" onclick="submitModifyMvt()">✏️ Enregistrer la modification</button>
+    <button class="btn-cancel" onclick="closeModal('mod-modify')">Annuler</button>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+// EYALLINE STOCK PRO — 446 articles Orient (Excel 08-05-2026)
+// ══════════════════════════════════════════════════════════
+const ARTS_INIT=[{"ref":"010011083","designation":"STICKER CONTROL PANEL SAVO","qte":9},{"ref":"010411027","designation":"TUYAU DURITE ESSORAGE 1*8-2","qte":100},{"ref":"010412003","designation":"JEU DE CALE POLYSTYRENE SUPERIEUR 1*8-2","qte":268},{"ref":"010412004","designation":"JEU DE CALE POLYSTYRENE INFERIEUR 1*8-2","qte":268},{"ref":"010412005","designation":"CARTON D'EMBALLAGE DOUBLE ONDULATION XPB 1*8-2","qte":1742},{"ref":"010412006","designation":"CALE SUPERIEURE RECTANGULAIRE EN POLYSTYRENE 450*50*65","qte":10250},{"ref":"010412007","designation":"CARTON D'EMBALLAGE DOUBLE ONDULATION 1*8-2 EXPORT","qte":37},{"ref":"010412021","designation":"CARTON D'EMBALLAGE FOND XPB1*8-2 EXPORT 770*435*870","qte":161},{"ref":"010422001","designation":"CABINE 1*8-2 INJ","qte":436},{"ref":"010422007","designation":"BOUTON 1*8-2 INJ","qte":372},{"ref":"010422009","designation":"CACHE PORTE ESSORAGE 1*8-2 INJ","qte":595},{"ref":"010422010","designation":"CADRE SUPERIEUR 1*8-2 AVEC ACCESSOIRES","qte":1},{"ref":"010422011","designation":"BOUCHON VANNE 1*8-2 INJ","qte":1723},{"ref":"010422012","designation":"FILTRE D'EVACUATION 1*8-2 INJ","qte":4544},{"ref":"010422014","designation":"CACHE VIS PLATEAU 1*8-2 INJ","qte":10866},{"ref":"010422015","designation":"PLAQUE D'ARROSAGE 1*8-2 INJ","qte":757},{"ref":"010422017","designation":"PANNEAU DE COMMANDE SANS ACCESSOIRES 1*8-2 INJ","qte":711},{"ref":"010422018","designation":"CADRE SUPERIEUR SANS ACCESSOIRES 1*8-2 INJ","qte":2},{"ref":"010422019","designation":"COUDE 1*8-2 INJ","qte":287},{"ref":"010422020","designation":"PLAQUETTE D'EQUILIBRAGE 1*8-2 9KG INJ","qte":2227},{"ref":"010422021","designation":"VANNE 1*8-2 INJ","qte":82},{"ref":"010422022","designation":"PORTE ESSORAGE 1*8-2 INJ","qte":483},{"ref":"010422023","designation":"PORTE LAVAGE 1*8-2 INJ","qte":76},{"ref":"010422029","designation":"VANNE ET COUDE 1*8-2","qte":9},{"ref":"010422030","designation":"CACHE VIS CADRE SUPERIEUR (8-F72) INJ","qte":33015},{"ref":"010422031","designation":"SOCLE GRIS 1*8-2 INJ","qte":35},{"ref":"010422032","designation":"CADRE 1*8-2 GRIS SANS ACCESOIRES INJ","qte":414},{"ref":"010422035","designation":"CABINE 1*8-2 GRIS INJ","qte":358},{"ref":"010422036","designation":"SUPPORT FILTRE GRIS 1*8-2 INJ","qte":222},{"ref":"010422037","designation":"AGRAFE FILTRE GRIS 1*8-2 INJ","qte":370},{"ref":"010422038","designation":"SUPPORT AGRAPHE FILTRE GRIS 1*8-2 INJ","qte":147},{"ref":"010422039","designation":"PLAQUE D'ARROSAGE GRIS 1*8-2 INJ","qte":166},{"ref":"010422040","designation":"PLAQUE D'ARROSAGE BLEU 1*8-2 INJ","qte":6},{"ref":"010422041","designation":"PLAQUE D'ARROSAGE ROSE 1*8-2 INJ","qte":3},{"ref":"010422042","designation":"PLATEAU GRIS 1*8-2 INJ","qte":1},{"ref":"010422045","designation":"CACHE VIS PLATEAU GRIS 1*8-2 INJ","qte":10},{"ref":"010422046","designation":"FILTRE D'EVACUATION GRIS 1*8-2 INJ","qte":5651},{"ref":"010422047","designation":"PARTIE MALE SUPPORT TUYAU DURITE ESSORAGE GRIS INJ 10KG-8KG-11KG","qte":20547},{"ref":"010422048","designation":"PARTIE FEMELLE SUPPORT TUYAU DURITE ESSORAGE GRIS INJ 10KG-8KG-11KG","qte":20777},{"ref":"010422049","designation":"PORTE ESSORAGE GRIS 1*8-2 INJ","qte":386},{"ref":"010422050","designation":"PORTE LAVAGE 1*8-2 GRIS INJ","qte":343},{"ref":"010422051","designation":"PANNEAU DE COMMANDE SANS ACCESSOIRES 1*8-2 GRIS INJ","qte":302},{"ref":"010422052","designation":"BOUTON GRIS 1*8-2 INJ","qte":7972},{"ref":"010422054","designation":"PANNEAU DE COMMANDE GRIS AVEC ACC 1*8-2","qte":4},{"ref":"010422055","designation":"SUPPORT FILTRE BLEU 1*8-2 INJ","qte":56},{"ref":"010422056","designation":"SUPPORT FILTRE ROSE 1*8-2 INJ","qte":3},{"ref":"010422057","designation":"AGRAFE FILTRE BLEU 1*8-2 INJ","qte":92},{"ref":"010422058","designation":"AGRAFE FILTRE ROSE 1*8-2 INJ","qte":215},{"ref":"010422059","designation":"SUPPORT AGRAPHE FILTRE BLEU 1*8-2 INJ","qte":798},{"ref":"010422060","designation":"SUPPORT AGRAPHE FILTRE ROSE 1*8-2 INJ","qte":1740},{"ref":"010422061","designation":"CACHE VIS PLATEAU BLEU 1*8-2 INJ","qte":28},{"ref":"010422063","designation":"CACHE VIS CADRE SUPERIEUR 1*8-2 GRIS INJ","qte":2600},{"ref":"010422064","designation":"CADRE GRIS AVEC ACCESSOIRES BLANCS 1*8-2 INJ","qte":1},{"ref":"010422066","designation":"PLATEAU 1*8-2 INJ V1","qte":277},{"ref":"010422067","designation":"CUVE ESSORAGE 11KG INJ AVEC AXE 8KG","qte":505},{"ref":"010422068","designation":"CUVE ESSORAGE 11KG GRIS INJ AVEC AXE 8KG","qte":292},{"ref":"010422069","designation":"PLATEAU 1*8-2 GRIS INJ V1","qte":135},{"ref":"010511057","designation":"TUYAU DURITE ESSORAGE SANS SUPPORT F67-10-11","qte":35},{"ref":"010512006","designation":"CALE PLAT EN POLYSTYRENE POUR CABINE 480*390*20","qte":5284},{"ref":"010512013","designation":"CALE SUPERIEUR RECTANGULAIRE EN POLYSTYRENE 150*50*50","qte":6720},{"ref":"010522009","designation":"PORTE ESSORAGE 10-11 INJ","qte":172},{"ref":"010522010","designation":"PORTE LAVAGE 10-11 SANS ACCESSOIRES","qte":946},{"ref":"010522012","designation":"PANNEAU DE COMMANDE BLANC AVEC ACCESSOIRES BLEU 11KG","qte":4},{"ref":"010522015","designation":"VANNE INJ 10-11","qte":1668},{"ref":"010522016","designation":"COUDE INJ 10-11","qte":1406},{"ref":"010522017","designation":"BOUCHON VANNE INJ 10-11","qte":10604},{"ref":"010522018","designation":"BOUCHON PISTON INJ 10-11","qte":8352},{"ref":"010522019","designation":"VANNE ET COUDE INJ 10-11","qte":1},{"ref":"010522020","designation":"CACHE FILTRE INJ 10-11","qte":3217},{"ref":"010522021","designation":"CORPS FILTRE INJ 10-11","qte":3221},{"ref":"010522022","designation":"CACHE VIS CADRE SUPERIEUR INJ 10-11","qte":43404},{"ref":"010522023","designation":"PARTIE MALE SUPPORT TUYAU DURITE ESSORAGE INJ 10KG-8KG-11KG","qte":47808},{"ref":"010522024","designation":"PARTIE FEMELLE SUPPORT TUYAU DURITE ESSORAGE INJ 10KG-8KG-11KG","qte":35544},{"ref":"010522025","designation":"SUPPORT DE MAINTIEN CACHE BOUTON INJ 10-11","qte":7331},{"ref":"010522026","designation":"CACHE VITRE PORTE ESSORAGE 10-11 INJ","qte":2126},{"ref":"010522027","designation":"SUPPORT FILTRE INJ 10-11","qte":874},{"ref":"010522028","designation":"CACHE VIS PLATEAU INJ 10-11","qte":11565},{"ref":"010522029","designation":"CORPS BOUTON INJ 10-11","qte":13413},{"ref":"010522030","designation":"PLATEAU INJ 10-11","qte":949},{"ref":"010522031","designation":"CACHE PORTE ESSORAGE INJ 10-11","qte":387},{"ref":"010522034","designation":"CERCLE GRIS CACHE VITRE PORTE ESSORAGE INJ 10-11","qte":1231},{"ref":"010522035","designation":"BAGUETTE GRIS PORTE ESSORAGE INJ 10-11","qte":298},{"ref":"010522036","designation":"BAGUETTE GRIS PORTE LAVAGE INJ 10-11","qte":410},{"ref":"010522039","designation":"POIGNEE PLASTIQUE ROUGE PORTE ESSORAGE INJ 10-11","qte":607},{"ref":"010522040","designation":"POIGNEE PLASTIQUE ROUGE PORTE LAVAGE INJ 10-11","qte":569},{"ref":"010522041","designation":"CACHE BOUTON ROUGE INJ 10-11","qte":16902},{"ref":"010522042","designation":"AGRAFE PORTES INJ 10-11","qte":2938},{"ref":"010522043","designation":"BASE BOUTON ROUGE INJ 10-11","qte":14459},{"ref":"010522072","designation":"CERCLE CUVE ESSORAGE 10-11 INJ","qte":131},{"ref":"010522073","designation":"CUVE ESSORAGE 10-11 INJ","qte":77},{"ref":"010522076","designation":"CACHE BOUTON BLEU INJ 10/11","qte":12848},{"ref":"010522077","designation":"BASE BOUTON BLEU INJ 10/11","qte":13171},{"ref":"010522078","designation":"POIGNEE PLASTIQUE BLEU PORTE ESSORAGE INJ 10/11","qte":829},{"ref":"010522079","designation":"POIGNEE PLASTIQUE BLEU PORTE LAVAGE INJ 10/11","qte":785},{"ref":"010522091","designation":"CACHE BOUTON BLANC INJ 10/11","qte":3306},{"ref":"010522094","designation":"CACHE VITRE PORTE ESSORAGE 11KG BLEU INJ","qte":89},{"ref":"010922001","designation":"CACHE ARRIERE F72-8KG-11KG INJ","qte":158},{"ref":"010922002","designation":"BOUCHON PISTON VANNE F72-8 INJ","qte":7514},{"ref":"010922003","designation":"SOUPAPE VANNE F72-8-9KG INJ","qte":1588},{"ref":"010922016","designation":"SUPPORT FILTRE F72-8 INJ","qte":4055},{"ref":"010922024","designation":"SUPPORT AGRAPHE FILTRE F72-8 INJ","qte":3119},{"ref":"011111025","designation":"JOINT DE PISTON VANNE F67-10","qte":103},{"ref":"011111027","designation":"RESSORT PISTON VANNE DE CONNEXION F67-10-11","qte":102},{"ref":"011222013","designation":"PLATEAU 12P/12/13","qte":1225},{"ref":"011222014","designation":"ACCESSOIRE PLATEAU 12P/12/13","qte":3715},{"ref":"011222015","designation":"CACHE VIS PLATEAU 12P/12/13","qte":2397},{"ref":"011222021","designation":"SOUPAPE VANNE 12","qte":12088},{"ref":"011811009","designation":"JOINT NOIR PISTON VANNE 1*12/2*13","qte":32},{"ref":"011811020","designation":"RESSORT PISTON VANNE DE CONNEXION 1*12/2*13","qte":32},{"ref":"011812002","designation":"JEU DE CALE POLYSTYRENE SUPERIEUR 12-13KG","qte":145},{"ref":"011812003","designation":"JEU DE CALE POLYSTYRENE INFERIEUR 12-13KG","qte":144},{"ref":"011822001","designation":"SOCLE COMMUN 1*12/2*13","qte":1226},{"ref":"011822002","designation":"CABINE COMMUN 1*12/2*13","qte":21},{"ref":"011822003","designation":"CUVE COMMUN 1*12/2*13","qte":682},{"ref":"011822004","designation":"CERCLE CUVE COMMUN 1*12/2*13","qte":1388},{"ref":"011822005","designation":"PLATEAU COMMUN 1*12/2*13","qte":90},{"ref":"011822006","designation":"CACHE ARRIERE COMMUN 1*12/2*13","qte":1243},{"ref":"011822007","designation":"SUPPORT FILTRE COMMUN 1*12/2*13","qte":1760},{"ref":"011822008","designation":"PLAQUETTE D'EQUILIBRAGE COMMUN 1*12/2*13","qte":2454},{"ref":"011822009","designation":"SUPPORT JOINT FUITE D'EAU COMMUN 1*12/2*13","qte":119},{"ref":"011822010","designation":"VANNE COMMUN 1*12/2*13","qte":3031},{"ref":"011822011","designation":"COUDE 1 COMMUN 1*12/2*13","qte":3038},{"ref":"011822012","designation":"COUDE 2 COMMUN 1*12/2*13","qte":2863},{"ref":"011822013","designation":"BOUCHON VANNE COMMUN 1*12/2*13","qte":3416},{"ref":"011822014","designation":"SOUPAPE VANNE COMMUN 1*12/2*13","qte":5080},{"ref":"011822015","designation":"BOUCHON PISTON VANNE COMMUN 1*12/2*13","qte":3094},{"ref":"011822016","designation":"FILTRE D'EVACUATION COMMUN 1*12/2*13","qte":4606},{"ref":"011822018","designation":"SUPPORT TUYAU DURITE ESSORAGE COMMUN 1*12/2*13","qte":11302},{"ref":"011822019","designation":"PIED AVANT DROITE 1*12/2*13","qte":34},{"ref":"011822020","designation":"PIED AVANT GAUCHE 1*12/2*13","qte":167},{"ref":"011822021","designation":"PIED ARRIERE DROITE 1*12/2*13","qte":609},{"ref":"011822022","designation":"PIED ARRIERE GAUCHE 1*12/2*13","qte":254},{"ref":"011822023","designation":"ENSEMBLE VANNE ET COUDES 1*12/2*13","qte":1},{"ref":"011822024","designation":"SOCLE COMMUN GRIS 1*12/2*13","qte":1638},{"ref":"011822025","designation":"PIED AVANT DROITE GRIS 1*12/2*13","qte":1496},{"ref":"011822026","designation":"PIED AVANT GAUCHE GRIS 1*12/2*13","qte":1516},{"ref":"011822027","designation":"PIED ARRIERE DROITE GRIS 1*12/2*13","qte":1426},{"ref":"011822028","designation":"PIED ARRIERE GAUCHE GRIS 1*12/2*13","qte":1582},{"ref":"011822029","designation":"CABINE COMMUN 1*12/2*13 GRIS","qte":83},{"ref":"011822030","designation":"CUVE COMMUN GRIS 1*12/2*13","qte":257},{"ref":"011822031","designation":"CERCLE CUVE COMMUN GRIS 1*12/2*13","qte":1737},{"ref":"011822032","designation":"PLATEAU GRIS 12P/12/13","qte":1233},{"ref":"011822033","designation":"PLATEAU BLEU 12P/12/13","qte":1},{"ref":"011822034","designation":"PLATEAU ROSE 12P/12/13","qte":62},{"ref":"011822035","designation":"CACHE ARRIERE COMMUN GRIS 1*12/2*13","qte":1175},{"ref":"011822036","designation":"SUPPORT FILTRE GRIS COMMUN 1*12/2*13","qte":2255},{"ref":"011822037","designation":"SUPPORT FILTRE BLEU COMMUN 1*12/2*13","qte":130},{"ref":"011822038","designation":"SUPPORT FILTRE ROSE COMMUN 1*12/2*13","qte":52},{"ref":"011822039","designation":"FILTRE D'EVACUATION COMMUN GRIS 1*12/2*13","qte":4149},{"ref":"011822040","designation":"FILTRE D'EVACUATION COMMUN BLEU 1*12/2*13","qte":1060},{"ref":"011822041","designation":"FILTRE D'EVACUATION COMMUN ROSE 1*12/2*13","qte":397},{"ref":"011822042","designation":"SUPPORT TUYAU DURITE ESSORAGE GRIS COMMUN 1*12/2*13","qte":8276},{"ref":"011822043","designation":"ACCESSOIRE PLATEAU GRIS 12P/12/13","qte":4305},{"ref":"011822044","designation":"ACCESSOIRE PLATEAU BLEU 12P/12/13","qte":2990},{"ref":"011822045","designation":"ACCESSOIRE PLATEAU ROSE 12P/12/13","qte":251},{"ref":"011822046","designation":"CACHE VIS PLATEAU GRIS 12P/12/13","qte":1893},{"ref":"011822047","designation":"CACHE VIS PLATEAU BLEU 12P/12/13","qte":1482},{"ref":"011822048","designation":"CACHE VIS PLATEAU ROSE 12P/12/13","qte":128},{"ref":"011822051","designation":"SUPPORT FILTRE COMMUN 1*12/2*13 ROUGE","qte":57},{"ref":"011911006","designation":"CEINTURE VIDANGE 1*12-8 740MM","qte":1},{"ref":"011911008","designation":"TUYAU DURITE LAVAGE 1*12-8","qte":2},{"ref":"011912001","designation":"CARTON D'EMBALLAGE XPB1*12-8","qte":129},{"ref":"011912003","designation":"BARQUETTE EN CARTON ONDULEE 1*12-8/1*12-5","qte":5299},{"ref":"011922001","designation":"CADRE SUPERIEUR SANS ACC 1*12-5/1*12-8","qte":1399},{"ref":"011922002","designation":"CACHE PORTE ESSORAGE 1*12-5/1*12-8","qte":204},{"ref":"011922003","designation":"CORPS BOUTON 1*12-5/1*12-8","qte":8041},{"ref":"011922004","designation":"CACHE BOUTON 1*12-5/1*12-8","qte":5708},{"ref":"011922005","designation":"PANNEAU DE COMMANDE SANS ACC 1*12-8","qte":82},{"ref":"011922006","designation":"PORTE LAVAGE 1*12-8","qte":964},{"ref":"011922007","designation":"PORTE ESSORAGE 1*12-8","qte":1302},{"ref":"011922008","designation":"CADRE SUPERIEUR AVEC ACCESSOIRE 1*12-5/1*12-8","qte":15},{"ref":"011922012","designation":"CADRE SUPERIEUR SANS ACC GRIS 1*12-5/1*12-8","qte":570},{"ref":"011922013","designation":"CADRE SUPERIEUR AVEC ACC GRIS 1*12-8","qte":10},{"ref":"011922014","designation":"CACHE PORTE ESSORAGE GRIS 1*12-5/1*12-8","qte":126},{"ref":"011922015","designation":"CORPS BOUTON GRIS 1*12-5/1*12-8","qte":249},{"ref":"011922016","designation":"CACHE BOUTON GRIS 1*12-5/1*12-8","qte":1852},{"ref":"011922017","designation":"PANNEAU DE COMMANDE GRIS SANS ACC 1*12-8","qte":255},{"ref":"011922018","designation":"PANNEAU DE COMMANDE GRIS AVEC ACCESSOIRE 1*12-8","qte":4},{"ref":"011922019","designation":"PORTE LAVAGE GRIS 1*12-8","qte":134},{"ref":"011922020","designation":"PORTE ESSORAGE GRIS 1*12-8","qte":169},{"ref":"012022001","designation":"PANNEAU DE COMMANDE SANS ACC 1*12-5","qte":7},{"ref":"012022009","designation":"PANNEAU DE COMMANDE GRIS SANS ACC 1*12-5","qte":128},{"ref":"012111006","designation":"CEINTURE FREIN 2*13-2/2*13-5 510MM","qte":10},{"ref":"012111008","designation":"TUYAU DURITE ESSORAGE 2*13-2/2*13-5","qte":7},{"ref":"012111009","designation":"TUYAU DURITE LAVAGE 2*13-2/2*13-5","qte":15},{"ref":"012112001","designation":"CARTON D'EMBALLAGE XPB2*13-2","qte":479},{"ref":"012112005","designation":"CARTON D'EMBALLAGE XPB2*13-2 DAEMOO EXPORT","qte":78},{"ref":"012122001","designation":"CADRE SUPERIEUR SANS ACC 2*13-2/2*13-5","qte":370},{"ref":"012122002","designation":"CACHE PORTE ESSORAGE 2*13-2/2*13-5","qte":765},{"ref":"012122003","designation":"SUPPORT LATERAL DROIT CADRE SUP 2*13-2/2*13-5","qte":1301},{"ref":"012122004","designation":"SUPPORT LATERAL GAUCHE CADRE SUP 2*13-2/2*13-5","qte":1354},{"ref":"012122005","designation":"BOUTON 2*13-2/2*13-5","qte":19303},{"ref":"012122006","designation":"PANNEAU DE COMMANDE SANS ACC 2*13-2/2*13-5","qte":421},{"ref":"012122007","designation":"PORTE LAVAGE SANS ACC 2*13-2","qte":575},{"ref":"012122008","designation":"PORTE ESSORAGE SANS ACC 2*13-2","qte":624},{"ref":"012122009","designation":"VITRE POUR PORTE LAVAGE 2*13-2","qte":1230},{"ref":"012122010","designation":"VITRE POUR PORTE ESSORAGE 2*13-2","qte":1295},{"ref":"012122011","designation":"POIGNEE POUR PORTE LAVAGE 2*13-2","qte":2290},{"ref":"012122012","designation":"AGRAFE PORTE 2*13-2/2*13-5","qte":8335},{"ref":"012122013","designation":"POIGNEE POUR PORTE ESSORAGE 2*13-2","qte":2291},{"ref":"012122020","designation":"CADRE SUPERIEUR SANS ACC GRIS 2*13-2/2*13-5","qte":1540},{"ref":"012122021","designation":"AGRAFE PORTE GRIS 2*13-2/2*13-5","qte":18195},{"ref":"012122023","designation":"CACHE PORTE ESSORAGE GRIS 2*13-2/2*13-5","qte":1537},{"ref":"012122024","designation":"BOUTON GRIS 2*13-2/2*13-5","qte":5786},{"ref":"012122025","designation":"PANNEAU DE COMMANDE SANS ACC GRIS 2*13-2/2*13-5","qte":1327},{"ref":"012212001","designation":"CARTON D'EMBALLAGE XPB2*13-5 820*450*980","qte":1801},{"ref":"012212008","designation":"CARTON D'EMBALLAGE DOUBLE ONDULATION XPB 2*13-5 EXPORT","qte":92},{"ref":"012222001","designation":"PORTE LAVAGE SANS ACC 2*13-5","qte":338},{"ref":"012222002","designation":"PORTE ESSORAGE SANS ACC 2*13-5","qte":401},{"ref":"012222003","designation":"VITRE POUR PORTE LAVAGE 2*13-5","qte":382},{"ref":"012222004","designation":"VITRE POUR PORTE ESSORAGE 2*13-5","qte":445},{"ref":"012222005","designation":"VITRE TRANSPARENT BLEU PORTE LAVAGE 2*13-5","qte":8},{"ref":"012222006","designation":"VITRE TRANSPARENT BLEU PORTE ESSORAGE 2*13-5","qte":138},{"ref":"012222011","designation":"PORTE LAVAGE GRIS SANS ACC 2*13-5","qte":1406},{"ref":"012222012","designation":"PORTE ESSORAGE GRIS SANS ACC 2*13-5","qte":1441},{"ref":"012222013","designation":"VITRE GRIS PORTE LAVAGE 2*13-5","qte":1366},{"ref":"012222014","designation":"VITRE GRIS PORTE ESSORAGE 2*13-5","qte":1377},{"ref":"012222015","designation":"PANNEAU DE COMMANDE AVEC ACCESSOIRE 2*13-5","qte":1},{"ref":"0131412001","designation":"KIT CALE OW-T12S01","qte":1690},{"ref":"0131412002","designation":"CARTON D'EMBALLAGE OW-T12S01","qte":2187},{"ref":"0131412003","designation":"PLAQUE PROTECTION MOTEUR EN CARTON OW-T12S01","qte":5053},{"ref":"0131412004","designation":"JEU DE CALE SUPEIEUR OW-T12S01","qte":66},{"ref":"0131412006","designation":"JEU DE CALE POUR TAMBOUR OW-T12S01","qte":340},{"ref":"0131412007","designation":"JEU DE CALE LATERAL AVANT DROITE OW-T12S01","qte":99},{"ref":"0131412008","designation":"JEU DE CALE LATERAL AVANT GAUCHE OW-T12S01","qte":97},{"ref":"0131412009","designation":"JEU DE CALE LATERAL ARRIERE DROITE OW-T12S01","qte":97},{"ref":"0131412010","designation":"JEU DE CALE LATERAL ARRIERE GAUCHE OW-T12S01","qte":97},{"ref":"0131412013","designation":"CARTON D'EMBALLAGE OW-T130 GRAND EXPORT","qte":39},{"ref":"0131412020","designation":"CARTON D'EMBALLAGE SVWTO-15STN SAVO EXPORT","qte":67},{"ref":"0131412025","designation":"CARTON D'EMBALLAGE GO-15500S/GO-15500B EXPORT MAL-TOP","qte":63},{"ref":"0131422001","designation":"TAMBOUR OW-T12S01 INJ","qte":253},{"ref":"0131422002","designation":"CABINE GRIS OW-T12S01 INJ DARK GREY","qte":382},{"ref":"0131422004","designation":"CERCLE POUR TAMBOUR OW-T12S01 INJ","qte":225},{"ref":"0131422005","designation":"PLATEAU OW-T12S01 INJ","qte":179},{"ref":"0131422006","designation":"CACHE ARRIERE GRIS OW-T12S01 INJ DARK GREY","qte":303},{"ref":"0131422007","designation":"CADRE SUPERIEUR GRIS SANS ACC OW-T12S01 INJ DARK GREY","qte":370},{"ref":"0131422008","designation":"CACHE VIS CADRE SUPERIEUR GRIS OW-T12S01 INJ DARK GREY","qte":21543},{"ref":"0131422009","designation":"CERCLE EQUILIBRAGE SUPERIEURE CUVE OW-T12S01 INJ","qte":159},{"ref":"0131422010","designation":"CERCLE EQUILIBRAGE INFERIEURE CUVE OW-T12S01 INJ","qte":367},{"ref":"0131422011","designation":"SOCLE GRIS OW-T12S01 INJ DARK GREY","qte":250},{"ref":"0131422013","designation":"PANNEAU DE COMMANDE NOIR OW-T12S01 INJ","qte":314},{"ref":"0131422015","designation":"BOITE A PRODUIT GRIS OW-T12S01 INJ DARK GREY","qte":1028},{"ref":"0131422016","designation":"BOUCHON NIVEAU D'EAU GRIS OW-T12S01 INJ","qte":21},{"ref":"0131422017","designation":"SUPPORT DE PROTECTION POULIE REDUCTEUR OW-T12S01 INJ","qte":315},{"ref":"0131422018","designation":"SUPPORT FILTRE OW-T12S01 INJ","qte":191},{"ref":"0131422019","designation":"PLAQUE D'ARROSAGE OW-T12S01 INJ","qte":194},{"ref":"0131422020","designation":"FILTRE OW-T12S01 INJ","qte":2482},{"ref":"0131422021","designation":"CACHE FILTRE OW-T12S01 INJ","qte":2778},{"ref":"0131422022","designation":"BOUCHON TUBE PRESOSTAT OW-T12S01 INJ","qte":1144},{"ref":"0131422023","designation":"CACHE VIS PLATEAU OW-T12S01 INJ","qte":5004},{"ref":"0131422024","designation":"PIED REGLABLE NOIR OW-T12S01 INJ","qte":3943},{"ref":"0131422025","designation":"POIGNEE DE LEVAGE GRIS OW-T12S01 INJ DARK GREY","qte":4020},{"ref":"0131422026","designation":"PISTON VANNE DE VIDANGE OW-T12S01 INJ","qte":1627},{"ref":"0131422028","designation":"SUPPORT DE TRANSPORT OW-T12S01 INJ","qte":1418},{"ref":"0131422029","designation":"BOUCHON GRIS POUR SOCLE OW-T12S01 INJ DARK GREY","qte":6964},{"ref":"0131422031","designation":"VANNE DE VIDANGE OW-T12S01 INJ","qte":357},{"ref":"0131422032","designation":"BOUCHON VANNE DE VIDANGE OW-T12S01 INJ","qte":12060},{"ref":"0131422033","designation":"TIRETTE DE VANNE DE VIDANGE OW-T12S01 INJ","qte":619},{"ref":"0131422034","designation":"CUVE BOITE A PRODUIT GRIS OW-T12S01 INJ DARK GREY","qte":907},{"ref":"0131422035","designation":"COUVERCLE GRIS CUVE BOITE A PRODUIT OW-T12S01 INJ","qte":20887},{"ref":"0131422036","designation":"BASE CUVE ESSORAGE OW-T12S01 INJ","qte":212},{"ref":"0131422037","designation":"CACHE VIS PANNEAU DE COMMANDE GRIS OW-T12S01 INJ DARK GREY","qte":15803},{"ref":"0131422038","designation":"CACHE AXE PIVOTANT PORTE GRIS OW-T12S01 INJ DARK GREY","qte":16078},{"ref":"0131422039","designation":"BOUCHON GRIS CERCLE D'EQUILIBRAGE OW-T12S01 INJ","qte":23987},{"ref":"0131422041","designation":"BOUCHON NIVEAU D'EAU BLEU OW-T12S01 INJ","qte":1157},{"ref":"0131522001","designation":"CABINE NOIR OW-T12S01 INJ","qte":268},{"ref":"0131522002","designation":"CACHE ARRIERE NOIR OW-T12S01 INJ","qte":101},{"ref":"0131522003","designation":"CADRE SUPERIEUR NOIR SANS ACC OW-T12S01 INJ","qte":214},{"ref":"0131522004","designation":"CACHE VIS CADRE SUPERIEUR NOIR OW-T12S01 INJ","qte":15497},{"ref":"0131522005","designation":"SOCLE NOIR OW-T12S01 INJ","qte":102},{"ref":"0131522006","designation":"PORTE NOIR SANS ACC OW-T12S01 INJ","qte":448},{"ref":"0131522007","designation":"CACHE CADRE SUPERIEUR NOIR OW-T12S01 INJ","qte":630},{"ref":"0131522008","designation":"BOITE A PRODUIT NOIR OW-T12S01 INJ","qte":429},{"ref":"0131522009","designation":"BOUCHON NIVEAU D'EAU NOIR OW-T12S01 INJ","qte":78},{"ref":"0131522010","designation":"POIGNEE DE LEVAGE NOIR OW-T12S01 INJ","qte":729},{"ref":"0131522011","designation":"CUVE BOITE A PRODUIT NOIR OW-T12S01 INJ","qte":1271},{"ref":"0131522012","designation":"CACHE VIS PANNEAU DE COMMANDE NOIR OW-T12S01 INJ","qte":10082},{"ref":"0131522013","designation":"CACHE AXE PIVOTANT PORTE NOIR OW-T12S01 INJ","qte":5797},{"ref":"0131522014","designation":"BOUCHON NOIR POUR SOCLE OW-T12S01 INJ","qte":1594},{"ref":"0131522015","designation":"COUVERCLE NOIR CUVE BOITE A PRODUIT OW-T12S01 INJ","qte":1},{"ref":"0131522016","designation":"BOUCHON NOIR CERCLE D'EQUILIBRAGE OW-T12S01 INJ","qte":2400},{"ref":"0131522017","designation":"CACHE DE PROTECTION SOCLE NOIR OW-T12S01 INJ","qte":174},{"ref":"017011001","designation":"TUYAU DURITE LAVAGE COMMUN 1-8-7/2-9-1/1-9-5/2-8-7","qte":35},{"ref":"017011002","designation":"TUYAU DURITE ESSORAGE COMMUN 1-8-7/2-9-1/1-9-5/2-8-7","qte":1},{"ref":"017011006","designation":"JOINT NOIR PISTON VANNE COMMUN 1-8-7/2-9-1/1-9-5/2-8-7","qte":20},{"ref":"017011007","designation":"RESSORT PISTON VANNE COMMUN 1-8-7/2-9-1/1-9-5/2-8-7","qte":20},{"ref":"017012001","designation":"JEU DE CALE POLYSTYRENE SUPERIEUR COMMUN 1-8-7/2-9-1/1-9-5/2-8-7","qte":279},{"ref":"017012002","designation":"JEU DE CALE POLYSTYRENE INFERIEUR COMMUN 1-8-7/2-9-1/1-9-5/2-8-7","qte":278},{"ref":"017022001","designation":"CABINE COMMUN 1-8-7/2-9-1/1-9-5/2-8-7 INJ","qte":209},{"ref":"017022003","designation":"PLATEAU COMMUN 1-8-7/2-9-1/1-9-5/2-8-7 INJ","qte":252},{"ref":"017022004","designation":"CUVE ESSORAGE 2-9-1 INJ","qte":193},{"ref":"017022005","designation":"CERCLE CUVE ESSORAGE COMMUN 1-8-7/2-9-1/1-9-5/2-8-7 INJ","qte":1959},{"ref":"017022006","designation":"SOUPAPE VANNE COMMUN 10KG-11KG INJ","qte":7293},{"ref":"017022007","designation":"BOUCHON PISTON VANNE COMMUN 1-8-7/2-9-1/1-9-5/2-8-7 INJ","qte":2444},{"ref":"017022008","designation":"SUPPORT TUYAU DURITE ESSORAGE COMMUN 1-8-7/2-9-1/1-9-5/2-8-7 INJ","qte":9617},{"ref":"017022009","designation":"SUPPORT JOINT FUITE D'EAU COMMUN 1-8-7/2-9-1/1-9-5/2-8-7 INJ","qte":1935},{"ref":"017022010","designation":"CACHE ARRIERE COMMUN 1-8-7/2-9-1/1-9-5/2-8-7 INJ","qte":1117},{"ref":"017022011","designation":"VANNE DE CONNEXION COMMUN 1-8-7/2-9-1/1-9-5/2-8-7 INJ","qte":399},{"ref":"017022012","designation":"COUDE COMMUN 1-8-1/2-9-1/1-9-5/2-8-7 INJ","qte":404},{"ref":"017022013","designation":"ENSEMBLE VANNE ET COUDE COMMUN 9KG","qte":1},{"ref":"017022015","designation":"SUPPORT FILTRE COMMUN 1-8-7/2-9-1/1-9-5/2-8-7 INJ","qte":443},{"ref":"017022016","designation":"BOUCHON VANNE COMMUN 1-8-7/2-9-1/1-9-5/2-8-7 INJ","qte":4595},{"ref":"017022017","designation":"PIED AVANT DROITE COMMUN 9KG INJ","qte":1259},{"ref":"017022018","designation":"PIED AVANT GAUCHE COMMUN 9KG INJ","qte":1493},{"ref":"017022019","designation":"PIED ARRIERE DROITE COMMUN 9KG INJ","qte":1752},{"ref":"017022020","designation":"PIED ARRIERE GAUCHE COMMUN 9KG INJ","qte":808},{"ref":"017022021","designation":"SOCLE COMMUN GRIS 1-8-7/2-9-1/1-9-5/2-8-7 INJ","qte":154},{"ref":"017022022","designation":"PIED AVANT DROITE GRIS COMMUN 9KG INJ","qte":794},{"ref":"017022023","designation":"PIED AVANT GAUCHE GRIS COMMUN 9KG INJ","qte":588},{"ref":"017022024","designation":"PIED ARRIERE DROITE GRIS COMMUN 9KG INJ","qte":707},{"ref":"017022025","designation":"PIED ARRIERE GAUCHE GRIS COMMUN 9KG INJ","qte":531},{"ref":"017022026","designation":"CABINE COMMUN 1-8-7/2-9-1/1-9-5/2-8-7 GRIS INJ","qte":94},{"ref":"017022027","designation":"CERCLE CUVE ESSORAGE COMMUN 1-8-7/2-9-1/1-9-5/2-8-7 GRIS INJ","qte":262},{"ref":"017022028","designation":"CUVE ESSORAGE 2-9-1 GRIS INJ","qte":97},{"ref":"017022029","designation":"PLATEAU COMMUN 1-8-7/2-9-1/1-9-5/2-8-7 GRIS INJ","qte":76},{"ref":"017022030","designation":"PLATEAU COMMUN 1-8-7/2-9-1/1-9-5/2-8-7 BLEU INJ","qte":65},{"ref":"017022032","designation":"CACHE ARRIERE COMMUN 1-8-7/2-9-1/1-9-5/2-8-7 GRIS INJ","qte":499},{"ref":"017022033","designation":"SUPPORT TUYAU DURITE ESSORAGE COMMUN GRIS INJ","qte":6678},{"ref":"017022034","designation":"SUPPORT FILTRE COMMUN GRIS INJ","qte":1103},{"ref":"017022035","designation":"SUPPORT FILTRE COMMUN BLEU INJ","qte":88},{"ref":"017022037","designation":"CACHE PORTE ESSORAGE 1-9-5/2-9-1/1-8-7 GRIS INJ","qte":213},{"ref":"017211007","designation":"TUYAU DE VIDANGE 2-9-1 GRIS","qte":8},{"ref":"017212002","designation":"CARTON D'EMBALLAGE DOUBLE ONDULATION 2-9-1 740*440*925","qte":73},{"ref":"017212010","designation":"BARQUETTE 2-9-1 EXPORT","qte":211},{"ref":"017212011","designation":"CARTON D'EMBALLAGE 2-9-1 ORIENT EXPORT","qte":221},{"ref":"017212013","designation":"CARTON D'EMBALLAGE XPB2*9-1 DAEMOO EXPORT","qte":55},{"ref":"017212031","designation":"CARTON D'EMBALLAGE XPB 2-9*1 ROYAL EXPORT 756*485*970","qte":44},{"ref":"017222001","designation":"COUVERCLE SUPERIEUR FILTRE D'EAU 2-9-1 INJ","qte":1043},{"ref":"017222002","designation":"COUVERCLE INFERIEUR FILTRE D'EAU 2-9-1 INJ","qte":866},{"ref":"017222003","designation":"VENTILATEUR FILTRE D'EAU 2-9-1 INJ","qte":4394},{"ref":"017222004","designation":"CADRE SUPERIEUR SANS ACCESSOIRES 2-9-1 INJ","qte":8},{"ref":"017222005","designation":"BOUTON 2-9-1 INJ","qte":1793},{"ref":"017222006","designation":"ACCESSOIRE PORTE ESSORAGE 2-9-1 INJ","qte":448},{"ref":"017222007","designation":"PORTE ESSORAGE 2-9-1 INJ","qte":289},{"ref":"017222008","designation":"PORTE LAVAGE 2-9-1 INJ","qte":191},{"ref":"017222010","designation":"PANNEAU DE COMMANDE AVEC ACC 2-9-1","qte":10},{"ref":"017222011","designation":"BASE BOUTON 2-9-1 INJ","qte":2402},{"ref":"017222013","designation":"PANNEAU DE COMMANDE SANS ACC 2-9-1 INJ","qte":530},{"ref":"017222016","designation":"CACHE VIS CADRE SUPERIEUR 2-9-1 INJ","qte":12280},{"ref":"017222017","designation":"PORTE LAVAGE TRANSPARENT BLEU 2*9-1 INJ","qte":198},{"ref":"017222018","designation":"PORTE ESSORAGE TRANSPARENT BLEU 2*9-1 INJ","qte":58},{"ref":"017222019","designation":"CADRE SUPERIEUR SANS ACCESSOIRES GRIS 2-9-1 INJ","qte":314},{"ref":"017222021","designation":"ACCESSOIRE PORTE ESSORAGE GRIS 2-9-1 INJ","qte":2159},{"ref":"017222022","designation":"PORTE ESSORAGE GRIS 2-9-1 INJ","qte":230},{"ref":"017222023","designation":"PORTE LAVAGE GRIS 2-9-1 INJ","qte":192},{"ref":"017222024","designation":"PANNEAU DE COMMANDE SANS ACC GRIS 2-9-1 INJ","qte":185},{"ref":"017222025","designation":"PANNEAU DE COMMANDE AVEC ACCESSOIRES GRIS 2-9-1 INJ","qte":1},{"ref":"017222026","designation":"BOUTON GRIS 2-9-1 INJ","qte":1775},{"ref":"017222027","designation":"BASE BOUTON GRIS 2-9-1 INJ","qte":680},{"ref":"017222028","designation":"VENTILATEUR FILTRE D'EAU GRIS 2-9-1 INJ","qte":3008},{"ref":"017222030","designation":"CADRE SUPERIEUR 2-9-1 AVEC PORTE TRANSPARENT BLEU","qte":1},{"ref":"017222031","designation":"CADRE SUPERIEUR GRIS 2*9-1 AVEC ACCESSOIRES BLANCS","qte":3},{"ref":"017222033","designation":"PLATEAU 2-9-1 INJ V1","qte":282},{"ref":"017222034","designation":"PLATEAU 2-9-1 GRIS INJ V1","qte":118},{"ref":"017222035","designation":"CACHE VIS CADRE SUPERIEUR 2-9-1 GRIS INJ","qte":8474},{"ref":"017322008","designation":"CACHE PORTE ESSORAGE 1-9-5/2-9-1/1-8-7 INJ","qte":1510},{"ref":"017622002","designation":"CABINE INJ 1*3-8/1*3-9","qte":130},{"ref":"017622003","designation":"POIGNEE DE LEVAGE INJ 1*3-8/1*3-9","qte":150},{"ref":"017622006","designation":"BOUTON INJ 1*3-8/1*3-9","qte":150},{"ref":"017622012","designation":"PLATEAU INJ 1*3-8/1*3-9","qte":150},{"ref":"017622016","designation":"CACHE ARRIERE INJ 1*3-8/1*3-9","qte":150},{"ref":"017622017","designation":"CACHE PANNEAU DE COMMANDE ROUGE INJ 1*3-8","qte":74},{"ref":"017622037","designation":"CACHE PANNEAU DE COMMANDE VERT INJ 1*3-8","qte":72},{"ref":"017811001","designation":"TUYAU DURITE LAVAGE 1*11-2","qte":5},{"ref":"017811002","designation":"CEINTURE FREIN 1*11-2 400MM","qte":1},{"ref":"017812001","designation":"CARTON D'EMBALLAGE XPB 1*11-2","qte":820},{"ref":"017812002","designation":"BARQUETTE 11KG 750*465*100","qte":1517},{"ref":"017812004","designation":"CALE EN MOUSSE DE PROTECTION 16*11*5 D20/22","qte":7530},{"ref":"017812014","designation":"JEU DE CALE POLYSTYRENE SUPERIEUR 1*11-2","qte":379},{"ref":"017812015","designation":"JEU DE CALE POLYSTYRENE INFERIEUR 1*11-2","qte":381},{"ref":"017812016","designation":"CARTON D'EMBALLAGE DOUBLE ONDULATION 1-11-2 EXPORT","qte":68},{"ref":"017822001","designation":"SOCLE 1*11-2 INJ","qte":294},{"ref":"017822002","designation":"CABINE 1*11-2 INJ","qte":1265},{"ref":"017822004","designation":"SOCLE 1*11-2 GRIS INJ","qte":807},{"ref":"017822005","designation":"CABINE GRIS 1*11-2 INJ","qte":637},{"ref":"017822006","designation":"CADRE SUPERIEUR SANS ACC GRIS 1*11-2 INJ","qte":956},{"ref":"017822007","designation":"CERCLE CUVE ESSORAGE 10-11 GRIS INJ","qte":1218},{"ref":"017822008","designation":"CUVE ESSORAGE GRIS 10-11 INJ","qte":426},{"ref":"017822009","designation":"SUPPORT FILTRE GRIS 10-11 INJ","qte":3065},{"ref":"017822010","designation":"CACHE ARRIERE GRIS F72-8KG-11KG INJ","qte":1477},{"ref":"017822011","designation":"PLATEAU GRIS 10-11 INJ","qte":182},{"ref":"017822012","designation":"CACHE FILTRE GRIS 10-11 INJ","qte":3210},{"ref":"017822013","designation":"CORPS FILTRE GRIS 10-11 INJ","qte":2987},{"ref":"017822014","designation":"PORTE ESSORAGE GRIS 10-11 INJ","qte":402},{"ref":"017822015","designation":"PORTE LAVAGE GRIS SANS ACCESSOIRES 10-11 INJ","qte":420},{"ref":"017822016","designation":"CACHE VITRE PORTE ESSORAGE GRIS 10-11 INJ","qte":2062},{"ref":"017822017","designation":"AGRAFE PORTE GRIS 10-11 INJ","qte":2510},{"ref":"017822018","designation":"VITRE PLASTIQUE PORTE ESSORAGE GRIS 10-11 INJ","qte":793},{"ref":"017822019","designation":"VITRE PLASTIQUE PORTE LAVAGE GRIS 10-11 INJ","qte":459},{"ref":"017822020","designation":"PANNEAU DE COMMANDE SANS ACCESOIRES GRIS 10-11 INJ","qte":296},{"ref":"017822021","designation":"SUPPORT DE MAINTIEN CACHE BOUTON 10-11 GRIS INJ","qte":4415},{"ref":"017822022","designation":"CORPS BOUTON 10-11 GRIS INJ","qte":13119},{"ref":"017822023","designation":"CACHE VIS PLATEAU GRIS 10-11 INJ","qte":5550},{"ref":"017822026","designation":"CACHE VIS CADRE SUPERIEUR 10-11 GRIS INJ","qte":16058},{"ref":"017822033","designation":"PLATEAU BLEU 1*11-2 INJ","qte":1},{"ref":"017822034","designation":"PLATEAU VERT PISTACHE 1*11-2 INJ","qte":17},{"ref":"0910212001","designation":"CARTON D'EMBALLAGE OV-1230 405*175*445","qte":2173},{"ref":"0910222001","designation":"CORPS POUR GRILLE BLANC OV-1230","qte":248},{"ref":"0910222002","designation":"HELICE BLANC OV-1230","qte":346},{"ref":"0910222003","designation":"BOUTON BLANC OV-1230","qte":11275},{"ref":"0910222004","designation":"CERCLE GRIS POUR GRILLE MOBILE OV-1230","qte":50},{"ref":"0910222005","designation":"GRILLE DE PROTECTION ARRIERE BLANC OV-1230","qte":652},{"ref":"0910222006","designation":"GRILLE DE PROTECTION MOBILE OV-1230","qte":789},{"ref":"0910222007","designation":"CACHE BLANC POUR GRILLE MOBILE OV-1230","qte":5336},{"ref":"0910222008","designation":"PANNEAU DE COMMANDE BLANC OV-1230","qte":5303},{"ref":"0910222009","designation":"SUPPORT VENTILATEUR BLANC OV-1230","qte":10230},{"ref":"0910222010","designation":"ACCOUPLEMENT POUR GRILLE MOBILE OV-1230","qte":7},{"ref":"0910222011","designation":"GRILLE DE PROTECTION ARRIERE GRIS OV-1230","qte":254},{"ref":"0910222012","designation":"BOUTON BLEU OV-1230","qte":5203},{"ref":"0910222014","designation":"SUPPORT VENTILATEUR GRIS OV-1230","qte":3200},{"ref":"0910222015","designation":"CACHE GRIS POUR GRILLE MOBILE OV-1230","qte":2765},{"ref":"0910222016","designation":"HELICE BLEU OV-1230","qte":467},{"ref":"0910222017","designation":"CORPS POUR GRILLE GRIS OV-1230","qte":220},{"ref":"0910222018","designation":"GRILLE DE PROTECTION MOBILE BLEU OV-1230","qte":61},{"ref":"0910222019","designation":"PANNEAU DE COMMANDE GRIS OV-1230","qte":7080},{"ref":"0910222020","designation":"CERCLE BLEU POUR GRILLE MOBILE OV-1230","qte":546},{"ref":"0910222024","designation":"PANNEAU DE COMMANDE NOIR OV-1230","qte":1501},{"ref":"0910222025","designation":"BOUTON GRIS OV-1230","qte":659},{"ref":"0910222026","designation":"SUPPORT VENTILATEUR NOIR OV-1230","qte":253},{"ref":"0910222028","designation":"CACHE NOIR POUR GRILLE MOBILE OV-1230","qte":1790},{"ref":"0910222029","designation":"GRILLE DE PROTECTION ARRIERE NOIR OV-1230","qte":148},{"ref":"0910222030","designation":"GRILLE DE PROTECTION MOBILE NOIR OV-1230","qte":194},{"ref":"0910222031","designation":"CORPS POUR GRILLE NOIR OV-1230","qte":60},{"ref":"0910222032","designation":"HELICE NOIR OV-1230","qte":193},{"ref":"0910422001","designation":"BASE RONDE NOIRE 500MM OV-1812","qte":3},{"ref":"0910422002","designation":"CACHE EMPLACEMENT MINUTERIE NOIR OV-1812","qte":13221},{"ref":"0910422003","designation":"CACHE EMPLACEMENT MINUTERIE BLANC OV-1812","qte":6},{"ref":"0910422004","designation":"CACHE EMPLACEMENT MINUTERIE BLEU OV-1812","qte":3},{"ref":"0910611004","designation":"CACHE GRILLE AVANT OV-1812","qte":26},{"ref":"0910611018","designation":"BIELLE D'OSCILLIATION OV-1812","qte":109},{"ref":"0910612006","designation":"CARTON D'EMBALLAGE DOUBLE ONDULATION OV-1812/1812T","qte":6371},{"ref":"0910622001","designation":"GRILLE AVANT/ARRIERE BLANC OV-1812","qte":2},{"ref":"0910622002","designation":"HELICE ORANGEE FLUO OV-1812","qte":265},{"ref":"0910622005","designation":"ACCESSOIRE PANNEAU DE COMMANDE AVANT NOIR OV-1812","qte":4723},{"ref":"0910622013","designation":"CACHE PANNEAU DE COMMANDE AVANT NOIR OV-1812","qte":1},{"ref":"0910622014","designation":"SUPPORT DE FIXATION MOTEUR NOIR OV-1812","qte":48},{"ref":"0910622016","designation":"CACHE MOTEUR ARRIERE NOIR OV-1812","qte":1},{"ref":"0910622017","designation":"HELICE NOIR OV-1812","qte":290},{"ref":"0910622019","designation":"CACHE MOTEUR AVANT BLEU OV-1812","qte":315},{"ref":"0910622021","designation":"ACCESSOIRE PANNEAU DE COMMANDE AVANT BLEU OV-1812","qte":178},{"ref":"0910622022","designation":"HELICE BLEU OV-1812","qte":56},{"ref":"0910622023","designation":"SUPPORT DE FIXATION MOTEUR ROUGE OV-1812","qte":11},{"ref":"0910622024","designation":"SUPPORT DE FIXATION MOTEUR BLEU OV-1812","qte":1761},{"ref":"0910622025","designation":"CACHE MOTEUR ARRIERE BLEU OV-1812","qte":186},{"ref":"0910622028","designation":"GRILLE AVANT/ARRIERE NOIR OV-1812","qte":17},{"ref":"TEST-PSF-1","designation":"TEST ARTICLE INJECTE ORIENT","qte":115}];
+
+// ═══ NUMÉRO DE MOUVEMENT ═══
+function nextMvtNum(){
+  // Find max existing number
+  let max=0;
+  S.mvts.forEach(m=>{
+    if(m.num){
+      const n=parseInt(m.num.replace('MVT-',''))||0;
+      if(n>max)max=n;
+    }
+  });
+  return 'MVT-'+(max+1).toString().padStart(5,'0');
+}
+
+// ═══ STATE ═══
+let S={
+  user:null,tab:'dashboard',pin:'',
+  arts:{},mvts:[],users:{},
+  online:{},  // uid -> timestamp
+  mvtArt:null,mvtType:'entree',mvtSearch:'',mvtQty:null,mvtNote:'',
+  sSearch:'',hFilter:'tous',hSearch:'',detArt:null
+};
+
+// ═══ PERSISTENCE ═══
+// ═══════════════════════════════════════════════════════════
+// FIREBASE CONFIGURATION
+// Remplacez ces valeurs par les vôtres depuis Firebase Console
+// console.firebase.google.com → Paramètres → Vos applications → </>
+// ═══════════════════════════════════════════════════════════
+const FIREBASE_CONFIG = {
+  apiKey:            "AIzaSyB9VE8xKjyEtRGlG8v-gjgCMC8VIX4NiGk",
+  authDomain:        "flutter-ai-playground-8cabe.firebaseapp.com",
+  databaseURL:       "https://flutter-ai-playground-8cabe-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:         "flutter-ai-playground-8cabe",
+  storageBucket:     "flutter-ai-playground-8cabe.firebasestorage.app",
+  messagingSenderId: "188509019722",
+  appId:             "1:188509019722:web:1eee9928541333841890b3"
+};
+
+// ═══ MODE : true = Firebase (temps réel) | false = localStorage uniquement ═══
+const USE_FIREBASE = FIREBASE_CONFIG.apiKey !== "VOTRE_API_KEY";
+
+// ═══════════════════════════════════════════════════════════
+// VERSION DE L'APPLICATION — Incrémenter à chaque mise à jour
+// ═══════════════════════════════════════════════════════════
+const APP_VERSION = "1.0.0";
+const APP_BUILD   = "2026-05-13";
+
+let DB = null;
+
+function initFirebase(){
+  if(!USE_FIREBASE) return;
+  try {
+    firebase.initializeApp(FIREBASE_CONFIG);
+    DB = firebase.database();
+    console.log('✅ Firebase connecté');
+  } catch(e) {
+    console.warn('⚠️ Firebase non disponible, mode local activé', e);
+  }
+}
+
+// ═══ SAVE ═══
+function save(){
+  // Toujours sauvegarder en local (backup)
+  try{
+    localStorage.setItem('eyalline_arts',   JSON.stringify(S.arts));
+    localStorage.setItem('eyalline_mvts',   JSON.stringify(S.mvts));
+    localStorage.setItem('eyalline_users',  JSON.stringify(S.users));
+    localStorage.setItem('eyalline_online', JSON.stringify(S.online));
+  }catch(e){}
+
+  // Sauvegarder sur Firebase si disponible
+  // Premier push: si Firebase est vide, envoyer les données locales
+  if(USE_FIREBASE && DB){
+    DB.ref('eyalline').set({
+      arts:   S.arts,
+      mvts:   S.mvts,
+      users:  S.users,
+      online: S.online
+    }).catch(e => console.warn('Firebase save error:', e));
+  }
+  showSaveInd();
+}
+
+// ═══ LOAD ═══
+function load(){
+  try{
+    const a=localStorage.getItem('eyalline_arts'),
+          m=localStorage.getItem('eyalline_mvts'),
+          u=localStorage.getItem('eyalline_users'),
+          o=localStorage.getItem('eyalline_online');
+    if(a) S.arts   = JSON.parse(a);
+    if(m) S.mvts   = JSON.parse(m);
+    if(u) S.users  = JSON.parse(u);
+    if(o) S.online = JSON.parse(o);
+  }catch(e){}
+}
+
+// ═══ SYNC TEMPS RÉEL ═══
+function startRealtimeSync(){
+  if(!USE_FIREBASE || !DB) return;
+  DB.ref('eyalline').on('value', snapshot => {
+    try {
+      const data = snapshot.val();
+      if(!data) return;
+      // Ne pas écraser si data Firebase est vide mais local est plein
+      if(data.arts   && Object.keys(data.arts).length)   S.arts   = data.arts;
+      if(data.mvts   && data.mvts.length)                S.mvts   = data.mvts;
+      if(data.users  && Object.keys(data.users).length)  S.users  = data.users;
+      if(data.online) S.online = data.online;
+      // Backup local
+      try{
+        localStorage.setItem('eyalline_arts',   JSON.stringify(S.arts));
+        localStorage.setItem('eyalline_mvts',   JSON.stringify(S.mvts));
+        localStorage.setItem('eyalline_users',  JSON.stringify(S.users));
+        localStorage.setItem('eyalline_online', JSON.stringify(S.online));
+      }catch(e){}
+      // Rafraîchir si connecté (pas pendant login)
+      if(S.user) {
+        fillSelect();
+        render();
+      }
+    } catch(e){ console.warn('Sync error:', e); }
+  }, error => {
+    console.warn('Firebase read error:', error.message);
+    // Continuer en mode local si Firebase refuse
+  });
+  console.log('🔄 Sync temps réel activée');
+  const fbBadge = document.getElementById('fb-status');
+  if(fbBadge) fbBadge.style.display = 'block';
+}
+
+// ═══ MISE À JOUR AUTOMATIQUE ═══
+function checkAppUpdate(){
+  if(!USE_FIREBASE || !DB) return;
+  DB.ref('eyalline_meta/version').once('value', snap => {
+    const serverVersion = snap.val();
+    if(!serverVersion) {
+      // Première fois : enregistrer la version actuelle
+      DB.ref('eyalline_meta').set({ version: APP_VERSION, build: APP_BUILD, updatedAt: Date.now() });
+      return;
+    }
+    if(serverVersion !== APP_VERSION){
+      showUpdateBanner(serverVersion);
+    }
+  });
+}
+
+function showUpdateBanner(newVersion){
+  // Supprimer l'ancien bandeau s'il existe
+  const old = document.getElementById('update-banner');
+  if(old) old.remove();
+
+  const banner = document.createElement('div');
+  banner.id = 'update-banner';
+  banner.innerHTML = `
+    <div style="
+      position:fixed;top:0;left:0;right:0;z-index:9999;
+      background:linear-gradient(135deg,#1565C0,#0d47a1);
+      color:#fff;padding:14px 16px;
+      display:flex;align-items:center;justify-content:space-between;
+      box-shadow:0 4px 20px rgba(0,0,0,.3);
+      animation:slideDown .4s ease;
+    ">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:22px;">🔄</span>
+        <div>
+          <div style="font-size:13px;font-weight:700;">Nouvelle mise à jour disponible !</div>
+          <div style="font-size:11px;opacity:.85;">Version ${newVersion} — Rechargez pour mettre à jour</div>
+        </div>
+      </div>
+      <button onclick="reloadApp()" style="
+        background:#fff;color:#1565C0;border:none;border-radius:10px;
+        padding:9px 16px;font-size:12px;font-weight:700;cursor:pointer;
+        font-family:Inter,sans-serif;white-space:nowrap;
+      ">⟳ Mettre à jour</button>
+    </div>
+  `;
+  document.body.prepend(banner);
+}
+
+function reloadApp(){
+  // Vider le cache et recharger
+  if('caches' in window){
+    caches.keys().then(keys => {
+      Promise.all(keys.map(k => caches.delete(k))).then(() => location.reload(true));
+    });
+  } else {
+    location.reload(true);
+  }
+}
+
+// ═══ PUBLIER UNE MISE À JOUR (réservé au Super Admin) ═══
+function publishUpdate(newVersion){
+  if(!USE_FIREBASE || !DB) { showToast('ts','Firebase requis pour publier une mise à jour'); return; }
+  if(!newVersion) newVersion = prompt('Numéro de version à publier :', APP_VERSION);
+  if(!newVersion) return;
+  DB.ref('eyalline_meta').set({
+    version: newVersion,
+    build: new Date().toISOString().slice(0,10),
+    updatedAt: Date.now(),
+    updatedBy: S.user ? S.user.prenom + ' ' + S.user.nom : 'Admin'
+  }).then(()=>{
+    showToast('ts','✅ Mise à jour v'+newVersion+' publiée — tous les appareils seront notifiés');
+  }).catch(()=>{
+    showToast('ts','❌ Erreur de publication');
+  });
+}
+
+let _si;
+function showSaveInd(){
+  const el=document.getElementById('save-ind');
+  if(!el) return;
+  el.textContent = USE_FIREBASE && DB ? '✓ Synchronisé Firebase 🔥' : '✓ Enregistrement local';
+  el.classList.add('show');
+  clearTimeout(_si);
+  _si=setTimeout(()=>el.classList.remove('show'),2500);
+}
+
+// ═══ INIT ═══
+function init(){
+  // Initialiser Firebase en premier
+  initFirebase();
+
+  // Charger les données locales (backup)
+  load();
+
+  // Initialiser les articles si vides
+  if(!Object.keys(S.arts).length){
+    ARTS_INIT.forEach(a=>{S.arts[a.ref]={...a};});
+    save();
+  }
+
+  // Créer le Super Admin si aucun utilisateur
+  if(!Object.keys(S.users).length){
+    S.users['admin']={prenom:'Administrateur',nom:'Système',qualification:'Admin Système',role:'superadmin',pin:'1234',actif:true,lastLogin:null};
+    save();
+  }
+
+  // Migration: ancien compte "admin" → superadmin
+  Object.entries(S.users).forEach(([id,u])=>{
+    if((u.prenom==='Administrateur'&&u.nom==='Système') || id==='admin'){
+      if(u.role==='admin'){
+        S.users[id].role='superadmin';
+        save();
+      }
+    }
+  });
+
+  // Démarrer la synchronisation temps réel Firebase
+  startRealtimeSync();
+
+  // Vérifier les mises à jour de l'application
+  setTimeout(checkAppUpdate, 3000);
+
+  // Remplir la liste de connexion
+  fillSelect();
+
+  // Afficher le statut Firebase dans la console
+  if(USE_FIREBASE && DB){
+    console.log('🔥 Mode Firebase activé — synchronisation temps réel');
+  } else {
+    console.log('💾 Mode local — configurez Firebase pour la synchronisation');
+  }
+}
+
+function fillSelect(){
+  const el=document.getElementById('auth-sel');
+  el.innerHTML='<option value="">— Choisir un utilisateur —</option>';
+  Object.entries(S.users)
+    .filter(([,u])=>u.actif!==false && u.role!=='superadmin')  // superadmin jamais visible
+    .forEach(([id,u])=>{
+      el.innerHTML+=`<option value="${id}">${u.prenom} ${u.nom}${(u.role==='admin'||u.role==='superadmin')?' ★':''}</option>`;
+    });
+  // superadmin gets a hidden dedicated option — only accessible if you know the exact id
+  Object.entries(S.users)
+    .filter(([,u])=>u.role==='superadmin')
+    .forEach(([id,u])=>{
+      el.innerHTML+=`<option value="${id}" style="display:none">${u.prenom} ${u.nom}</option>`;
+    });
+}
+
+// ═══ AUTH ═══
+// ═══ SECRET SUPER ADMIN LOGIN ═══
+// 5 clics rapides sur le logo Orient OU la zone en bas de la carte
+let _sTaps=0,_sTimer=null;
+function validateSecretId(){
+  const entered = document.getElementById('secret-id').value.trim().toLowerCase();
+  if(!entered) return;
+  const found = Object.entries(S.users).find(([k,u])=>
+    u.role==='superadmin' && (
+      k.toLowerCase()===entered ||
+      u.prenom.toLowerCase()===entered ||
+      (u.prenom+' '+u.nom).toLowerCase()===entered
+    )
+  );
+  if(found){
+    document.getElementById('pin-sec').style.display='block';
+    document.getElementById('auth-err').classList.remove('show');
+    S.pin='';dots();
+    document.querySelector('#pin-sec .pin-btn').focus();
+  } else {
+    document.getElementById('auth-err').textContent='Identifiant introuvable';
+    document.getElementById('auth-err').classList.add('show');
+    setTimeout(()=>document.getElementById('auth-err').classList.remove('show'),2000);
+  }
+}
+
+function secretTap(){
+  _sTaps++;
+  clearTimeout(_sTimer);
+  // Visual feedback - brief flash on logo
+  const logo=document.querySelector('.brand-logo-box');
+  if(logo){
+    logo.style.boxShadow='0 0 0 3px #1565C0, 0 8px 40px rgba(0,0,0,.2)';
+    setTimeout(()=>{logo.style.boxShadow='';},300);
+  }
+  if(_sTaps>=5){
+    _sTaps=0;
+    clearTimeout(_sTimer);
+    const sec=document.getElementById('secret-login');
+    const isHidden=sec.style.display==='none'||sec.style.display==='';
+    sec.style.display=isHidden?'block':'none';
+    if(isHidden){
+      document.getElementById('auth-sel').value='';
+      document.getElementById('pin-sec').style.display='none';
+      document.getElementById('secret-id').value='';
+      S.pin='';dots();
+      setTimeout(()=>{
+        const inp=document.getElementById('secret-id');
+        if(inp) inp.focus();
+      },150);
+    }
+    return;
+  }
+  _sTimer=setTimeout(()=>{_sTaps=0;},2000);
+}
+
+document.getElementById('auth-sel').addEventListener('change',function(){
+  document.getElementById('pin-sec').style.display=this.value?'block':'none';
+  document.getElementById('secret-login').style.display='none';
+  S.pin='';dots();document.getElementById('auth-err').classList.remove('show');
+});
+function dots(){for(let i=0;i<4;i++)document.getElementById('d'+i).className='pin-dot'+(i<S.pin.length?' filled':'');}
+function addPin(d){
+  if(S.pin.length>=4)return;S.pin+=d;dots();
+  if(S.pin.length===4){
+    // Mode secret Super Admin
+    const secretMode=document.getElementById('secret-login').style.display!=='none';
+    let id=null,u=null;
+    if(secretMode){
+      const entered=document.getElementById('secret-id').value.trim().toLowerCase();
+      const found=Object.entries(S.users).find(([k,v])=>v.role==='superadmin'&&(k.toLowerCase()===entered||(v.prenom+' '+v.nom).toLowerCase()===entered||v.prenom.toLowerCase()===entered));
+      if(found){id=found[0];u=found[1];}
+    } else {
+      id=document.getElementById('auth-sel').value;
+      u=S.users[id];
+    }
+    if(u&&u.pin===S.pin){
+      S.user={id,...u};
+      S.users[id].lastLogin=Date.now();
+      S.online[id]=Date.now();
+      save();
+      document.getElementById('sc-auth').classList.remove('active');
+      document.getElementById('sc-main').classList.add('active');
+      document.getElementById('hdr-uname').textContent=u.prenom;
+      document.getElementById('nav-admin').style.display=(u.role==='admin'||u.role==='superadmin')?'flex':'none';
+      document.getElementById('orient-strip').style.display='flex';
+      if(u.role==='lecteur'){document.getElementById('nav-mouvement').style.opacity='0.4';}
+      goTab('dashboard');
+    }else{
+      document.getElementById('auth-err').classList.add('show');
+      setTimeout(()=>{S.pin='';dots();document.getElementById('auth-err').classList.remove('show');},900);
+    }
+  }
+}
+
+function delPin(){S.pin=S.pin.slice(0,-1);dots();document.getElementById('auth-err').classList.remove('show');}
+function logout(){
+  if(S.user){delete S.online[S.user.id];save();}
+  S.user=null;S.pin='';
+  document.getElementById('sc-main').classList.remove('active');
+  document.getElementById('sc-auth').classList.add('active');
+  document.getElementById('orient-strip').style.display='none';
+  document.getElementById('auth-sel').value='';
+  document.getElementById('pin-sec').style.display='none';
+  dots();
+}
+
+// ═══ NAVIGATION ═══
+function goTab(t){
+  S.tab=t;
+  ['dashboard','stock','mouvement','historique','admin','profil'].forEach(n=>{
+    const el=document.getElementById('nav-'+n);if(el)el.className='nav-item'+(n===t?' active':'');
+  });
+  render();
+}
+function render(){
+  const c=document.getElementById('main-content');
+  const fn={dashboard:rDash,stock:rStock,mouvement:rMvt,historique:rHist,admin:rAdmin,profil:rProfil};
+  c.innerHTML=(fn[S.tab]||rDash)();
+  if(S.tab==='mouvement')bindMvt();
+}
+
+// ═══ HELPERS ═══
+const fd=ts=>{if(!ts)return'—';const d=new Date(ts);return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit'})+' '+d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});};
+const fn=n=>(n||0).toLocaleString('fr');
+const qc=q=>q<1||q<10?'aq-l':q<100?'aq-m':'aq-h';
+const ti=t=>t==='entree'?'📥':t==='sortie'?'📤':t==='retour'?'🔄':t==='modification'?'✏️':'✏️';
+const tl=t=>t==='entree'?'Entrée':t==='sortie'?'Sortie':t==='retour'?'Retour':t==='modification'?'Modification':'Correction';
+const tqc=t=>t==='entree'?'mvq-entree':t==='sortie'?'mvq-sortie':t==='retour'?'mvq-retour':t==='modification'?'mvq-modification':'mvq-edit';
+const ts2=t=>t==='sortie'?'-':t==='edit'||t==='modification'?'→':'+';
+const tmc=t=>'mbi-'+(t==='edit'?'edit':t==='modification'?'modification':t);
+const isOnline=id=>{const t=S.online[id];return t&&(Date.now()-t<300000);};// online si actif < 5min
+
+// ═══ DASHBOARD ═══
+function rDash(){
+  const a = Object.values(S.arts);
+  const tot = a.length;
+  const pcs = a.reduce((s,x)=>s+(x.qte||0),0);
+  const al = a.filter(x=>(x.qte||0)<10).length;
+  const td = new Date().toDateString();
+  const tdmv = S.mvts.filter(m=>new Date(m.date).toDateString()===td).length;
+  const rec = [...S.mvts].sort((a,b)=>b.date-a.date).slice(0,12);
+  const today = new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+  let html = '<div class="dash-hero">'
+    +'<div class="dash-date">'+today+'</div>'
+    +'<div class="dash-greet">Bonjour, '+S.user.prenom+' 👋</div>'
+    +'<div class="dash-orient"><span class="orient-badge">Orient Electronics</span> EYALLINE STOCK PRO</div>'
+    +'</div>';
+
+  html += '<div class="stats-grid">'
+    +'<div class="stat s1"><div class="stat-icon">📋</div><div class="stat-val">'+tot+'</div><div class="stat-lbl">Références</div></div>'
+    +'<div class="stat s2"><div class="stat-icon">📦</div><div class="stat-val">'+fn(pcs)+'</div><div class="stat-lbl">Pièces totales</div></div>'
+    +'<div class="stat s3"><div class="stat-icon">⚠️</div><div class="stat-val">'+al+'</div><div class="stat-lbl">Alertes stock</div></div>'
+    +'<div class="stat s4"><div class="stat-icon">🔄</div><div class="stat-val">'+tdmv+'</div><div class="stat-lbl">Mouvements/j</div></div>'
+    +'</div>';
+
+  html += '<div class="sec-title">Derniers mouvements</div>';
+
+  if(!rec.length){
+    html += '<div class="empty"><div class="empty-icon">📭</div><div>Aucun mouvement enregistré</div></div>';
+  } else {
+    rec.forEach(function(m){
+      const sign = m.type==='sortie' ? '-' : m.type==='edit' ? '→' : '+';
+      const qdisp = m.type==='edit' ? (m.after||0) : (m.qty||0);
+      const badgeClass = m.type==='entree'?'mbi-entree':m.type==='sortie'?'mbi-sortie':m.type==='retour'?'mbi-retour':'mbi-edit';
+      const qtyClass = m.type==='entree'?'mvq-entree':m.type==='sortie'?'mvq-sortie':m.type==='retour'?'mvq-retour':'mvq-edit';
+      const icon = m.type==='entree'?'📥':m.type==='sortie'?'📤':m.type==='retour'?'🔄':'✏️';
+      const signDisplay = m.type==='edit' ? '' : sign;
+      html += '<div class="mv-item">'
+        +'<div class="mv-badge '+badgeClass+'">'+icon+'</div>'
+        +'<div class="mv-info">'
+        +(m.num?'<div class="mv-num">'+m.num+'</div>':'')
+        +'<div class="mv-ref">'+(m.ref||'')+'</div>'
+        +'<div class="mv-desc">'+(m.designation||'')+'</div>'
+        +'<div class="mv-meta">'+(m.user||'')+'&nbsp;·&nbsp;'+fd(m.date)+'</div>'
+        +'</div>'
+        +'<div>'
+        +'<div class="mv-qty '+qtyClass+'">'+signDisplay+qdisp+'</div>'
+        +'<div class="mv-after">→ '+fn(m.after)+'</div>'
+        +'</div>'
+        +'</div>';
+    });
+  }
+  return html;
+}
+
+function rStock(){
+  const q=(S.sSearch||'').toLowerCase().trim();
+  const list=Object.values(S.arts).filter(a=>!q||a.ref.toLowerCase().includes(q)||a.designation.toLowerCase().includes(q)).sort((a,b)=>a.ref.localeCompare(b.ref));
+  let items = '';
+  if(!list.length) items = `<div class="empty"><div class="empty-icon">🔍</div><div>Aucun résultat</div></div>`;
+  else items = list.map(a=>`<div class="art-item" onclick="openDet('${a.ref.replace(/'/g,"\\'")}')"><div class="art-ref">${a.ref}</div><div class="art-name">${a.designation}</div><div class="art-qty ${qc(a.qte||0)}">${fn(a.qte)}</div></div>`).join('');
+  return `<div class="search-wrap"><div class="s-rel"><span class="s-icon">🔍</span><input class="s-inp" id="stock-search-inp" placeholder="Référence ou désignation..." value="${(S.sSearch||'').replace(/"/g,'&quot;')}" oninput="updateStockList(this.value)" onkeydown="event.stopPropagation()" autocomplete="off" autocorrect="off" autocapitalize="off"></div></div><div id="stock-list-container">${items}</div>`;
+}
+
+// ═══ MOUVEMENT ═══
+function rMvt(){
+  if(S.user.role==='lecteur'){
+    return '<div style="padding:40px 20px;text-align:center;">'
+      +'<div style="font-size:52px;margin-bottom:16px;">🔒</div>'
+      +'<div style="font-size:18px;font-weight:700;color:var(--t1);margin-bottom:8px;">Accès restreint</div>'
+      +'<div style="font-size:13px;color:var(--t3);line-height:1.6;">Votre compte est en <strong style="color:var(--p4)">mode lecture seule</strong>.<br>Vous pouvez consulter le stock et l\'historique<br>mais pas effectuer de mouvements.</div>'
+      +'</div>';
+  }
+
+  const sel = S.mvtArt;
+  const t = S.mvtType;
+  const qty = S.mvtQty||0;
+  const searchVal = (S.mvtSearch||'').replace(/"/g,'&quot;');
+  const noteVal = (S.mvtNote||'').replace(/"/g,'&quot;');
+
+  // Type toggle
+  const btnStyle = 'padding:13px 4px;border-radius:12px;border:2px solid;background:#fff;font-size:12px;font-weight:700;cursor:pointer;text-align:center;font-family:Inter,sans-serif;';
+  let typeToggle = '<div class="type-toggle" style="grid-template-columns:1fr 1fr 1fr 1fr;">';
+  typeToggle += '<button style="'+btnStyle+(t==='entree'?'border-color:#047857;background:#d1fae5;color:#047857;':'border-color:#e5e7eb;color:#9ca3af;')+'" onclick="setT(\'entree\')">📥 Entrée</button>';
+  typeToggle += '<button style="'+btnStyle+(t==='sortie'?'border-color:#dc2626;background:#fee2e2;color:#dc2626;':'border-color:#e5e7eb;color:#9ca3af;')+'" onclick="setT(\'sortie\')">📤 Sortie</button>';
+  typeToggle += '<button style="'+btnStyle+(t==='retour'?'border-color:#7c3aed;background:#ede9fe;color:#7c3aed;':'border-color:#e5e7eb;color:#9ca3af;')+'" onclick="setT(\'retour\')">🔄 Retour</button>';
+  typeToggle += '<button style="'+btnStyle+(t==='edit'?'border-color:#d97706;background:#fef3c7;color:#d97706;':'border-color:#e5e7eb;color:#9ca3af;')+'" onclick="setT(\'edit\')">✏️ Correct.</button>';
+  typeToggle += '</div>';
+
+  // Edit mode notice
+  let editNotice = '';
+  if(t==='edit'){
+    editNotice = '<div style="background:#fffbeb;border:1.5px solid #fcd34d;border-radius:12px;padding:12px;margin-bottom:12px;font-size:11px;color:#92400e;">'
+      +'<strong>⚠️ Mode correction :</strong> Saisissez la quantité réelle exacte en stock. La correction sera tracée avec motif obligatoire.'
+      +'</div>';
+  }
+
+  // Article section
+  let articleSection = '<div class="fsec"><div class="fsec-title">Article</div>';
+  if(!sel){
+    articleSection += '<input class="f-inp" id="ms" placeholder="Rechercher article..." value="'+searchVal+'" oninput="updateMvtSearch(this.value)" onkeydown="event.stopPropagation()" autocomplete="off" autocorrect="off" autocapitalize="off">';
+    articleSection += '<div id="mvt-sugg-container"></div>';
+  } else {
+    const stockColor = (sel.qte||0)<10 ? '#dc2626' : '#047857';
+    articleSection += '<div class="art-sel">'
+      +'<div class="art-sel-ref">'+sel.ref+'</div>'
+      +'<div class="art-sel-name">'+sel.designation+'</div>'
+      +'<div class="art-sel-stk">Stock actuel : <strong style="color:'+stockColor+'">'+fn(sel.qte)+' pcs</strong></div>'
+      +'</div>';
+    articleSection += '<button onclick="clearArt()" style="padding:7px 14px;background:var(--bg3);border:1.5px solid var(--brd);border-radius:8px;color:var(--t2);font-size:12px;cursor:pointer;margin-bottom:10px;font-family:Inter,sans-serif;">✕ Changer l\'article</button>';
+  }
+  articleSection += '</div>';
+
+  // Quantity section
+  const warnHtml = (t==='sortie' && sel && qty>(sel.qte||0))
+    ? '<div class="warn-box" id="qty-warn">⚠️ Quantité insuffisante — disponible : '+fn(sel.qte)+' pcs</div>'
+    : '<div class="warn-box" id="qty-warn" style="display:none">.</div>';
+
+  const qtyLabel = t==='edit' ? 'Quantité réelle en stock' : 'Quantité';
+  const notePlaceholder = t==='edit' ? 'Ex: Inventaire physique, erreur de saisie...' : 'BL, OF, observation...';
+  const noteLabel = t==='edit' ? 'Motif de correction (obligatoire)' : 'Note (optionnel)';
+  const noteHint = t==='edit'
+    ? '<div style="font-size:10px;color:#92400e;margin-top:-6px;margin-bottom:6px;">⚠ La correction sera enregistrée définitivement.</div>'
+    : '';
+
+  let qtySection = '<div class="fsec"><div class="fsec-title">'+qtyLabel+'</div>'
+    +'<div class="qty-row">'
+    +'<button class="qty-btn" id="qm">−</button>'
+    +'<input class="qty-inp" id="qv" type="number" min="'+(t==='edit'?'0':'1')+'" value="'+(qty||'')+'" placeholder="0">'
+    +'<button class="qty-btn" id="qp">+</button>'
+    +'</div>'
+    +warnHtml
+    +'<label class="lbl">'+noteLabel+'</label>'
+    +'<input class="f-inp" id="mn" placeholder="'+notePlaceholder+'" value="'+noteVal+'">'
+    +noteHint
+    +'</div>';
+
+  // Submit button
+  const ok = sel && (t==='edit' ? qty>=0 : (qty>=1 && !(t==='sortie' && qty>(sel.qte||0))));
+  const btnColors = {entree:'linear-gradient(135deg,#047857,#065f46)',sortie:'linear-gradient(135deg,#dc2626,#991b1b)',retour:'linear-gradient(135deg,#7c3aed,#5b21b6)',edit:'linear-gradient(135deg,#d97706,#b45309)'};
+  const btnLabels = {entree:'📥 Valider l\'entrée',sortie:'📤 Valider la sortie',retour:'🔄 Valider le retour',edit:'✏️ Corriger le stock'};
+  const submitBtn = '<button class="btn-sub" id="bsub" style="background:'+btnColors[t]+'" '+(ok?'':'disabled')+' onclick="submitMvt()">'+btnLabels[t]+'</button>';
+
+  return '<div class="form-pad">'+typeToggle+editNotice+articleSection+qtySection+submitBtn+'</div>';
+}
+
+function bindMvt(){
+  const qv=document.getElementById('qv'),qm=document.getElementById('qm'),qp=document.getElementById('qp'),mn=document.getElementById('mn');
+  if(qv)qv.addEventListener('input',()=>{S.mvtQty=parseInt(qv.value)||0;updateQtyDisplay();});
+  if(qm)qm.addEventListener('click',()=>{S.mvtQty=Math.max(S.mvtType==='edit'?0:1,(S.mvtQty||0)-1);updateQtyDisplay();});
+  if(qp)qp.addEventListener('click',()=>{S.mvtQty=(S.mvtQty||0)+1;updateQtyDisplay();});
+  if(mn)mn.addEventListener('input',()=>{S.mvtNote=mn.value;});
+}
+function setT(t){S.mvtType=t;render();}
+function clearArt(){S.mvtArt=null;S.mvtSearch='';render();}
+function pickArt(ref){S.mvtArt=S.arts[ref];S.mvtSearch='';S.mvtQty=1;S.mvtNote='';render();bindMvt();}
+function submitMvt(){if(S.user.role==='lecteur'){showToast('ts','Accès refusé — compte lecture seule');return;}
+  const sel=S.mvtArt,t=S.mvtType,qty=S.mvtQty||1,note=document.getElementById('mn')?.value||'';
+  if(!sel)return;
+  // CORRECTION MODE
+  if(t==='edit'){
+    if(!note.trim()){showToast('ts','⚠ Motif de correction obligatoire');return;}
+    const before=sel.qte||0,after=Math.max(0,qty);
+    const num=nextMvtNum();
+    S.arts[sel.ref].qte=after;
+    S.mvts.unshift({num,id:Date.now().toString(),ref:sel.ref,designation:sel.designation,type:'edit',qty:Math.abs(after-before),before,after,user:S.user.prenom+' '+S.user.nom,uid:S.user.id,note:'[CORRECTION] '+note,date:Date.now()});
+    save();
+    showToast('tw','Correction enregistrée : '+fn(before)+' → '+fn(after)+' pcs · '+num);
+    S.mvtArt=null;S.mvtSearch='';S.mvtQty=1;S.mvtNote='';render();
+    return;
+  }
+  // NORMAL MOVEMENT
+  if(qty<1)return;if(t==='sortie'&&qty>(sel.qte||0))return;
+  const bef=sel.qte||0,aft=t==='sortie'?Math.max(0,bef-qty):bef+qty;
+  const num=nextMvtNum();
+  S.arts[sel.ref].qte=aft;
+  S.mvts.unshift({num,id:Date.now().toString(),ref:sel.ref,designation:sel.designation,type:t,qty,before:bef,after:aft,user:S.user.prenom+' '+S.user.nom,uid:S.user.id,note,date:Date.now()});
+  save();
+  const tc=t==='entree'?'te':t==='sortie'?'ts':'tr';
+  showToast(tc,tl(t)+' enregistrée : '+qty+' pcs — '+sel.ref+' · '+num);
+  S.mvtArt=null;S.mvtSearch='';S.mvtQty=1;S.mvtNote='';render();
+}
+
+// ═══ HISTORIQUE ═══
+function rHist(){
+  const f=S.hFilter||'tous',td=new Date().toDateString(),wk=Date.now()-7*86400000;
+  const q=(S.hSearch||'').toLowerCase();
+  const list=S.mvts.filter(m=>{
+    if(f==='entrees')return m.type==='entree';if(f==='sorties')return m.type==='sortie';
+    if(f==='retours')return m.type==='retour';if(f==='corrections')return m.type==='edit';
+    if(f==='modifications')return m.type==='modification';
+    if(f==="aujourd'hui")return new Date(m.date).toDateString()===td;
+    if(f==='semaine')return m.date>=wk;if(f==='moi')return m.uid===S.user.id;return true;
+  }).filter(m=>!q||m.ref.toLowerCase().includes(q)||m.designation.toLowerCase().includes(q)||(m.num&&m.num.toLowerCase().includes(q)));
+  const chips=['tous',"aujourd'hui",'semaine','entrees','sorties','retours','corrections','modifications','moi'];
+  let items='';
+  if(!list.length) items=`<div class="empty"><div class="empty-icon">📭</div><div>Aucun enregistrement</div></div>`;
+  else list.forEach(m=>{
+    const sign=m.type==='sortie'?'-':(m.type==='edit'||m.type==='modification')?'→':'+';
+    const qd=m.type==='edit'||m.type==='modification'?m.after:m.qty;
+    const numBadge=m.num?`<div class="mv-num">${m.num}</div>`:'';
+    const modifiedTrace=m.modifiedBy?`<div class="mod-trace">✏️ Modifié (${m.modifiedToRef?'article→'+m.modifiedToRef:'quantité'}) par ${m.modifiedByUser} · ${m.modifiedBy} · ${fd(m.modifiedAt)}</div>`:'';
+    const canModify=(S.user.role==='admin'||S.user.role==='superadmin'||S.user.role==='magasinier')&&m.type!=='modification'&&!m.modifiedBy;
+    const modBtn=canModify?`<button class="btn-modif" onclick="openModifyMvt('${m.id}')">✏️ Modifier</button>`:'';
+    items+=`<div class="mv-item" style="flex-wrap:wrap;gap:4px;"><div class="mv-badge ${tmc(m.type)}">${ti(m.type)}</div><div class="mv-info">${numBadge}<div class="mv-ref">${m.ref}</div><div class="mv-desc">${m.designation}</div><div class="mv-meta">${m.user} · ${fd(m.date)}</div>${m.note?('<div style="font-size:10px;color:var(--t3);font-style:italic">"'+(m.note)+'"</div>'):''} ${m.origMvtNum?`<div style="font-size:10px;color:#be185d;">← Réf. originale : ${m.origMvtNum}</div>`:''} ${modifiedTrace}</div><div style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px;"><div class="mv-qty ${tqc(m.type)}">${m.type!=='edit'&&m.type!=='modification'?sign:''}${qd}</div><div class="mv-after">→${fn(m.after)}</div>${modBtn}</div></div>`;
+  });
+  return `<div class="hist-filters">${chips.map(ch=>`<div class="chip${f===ch?' on':''}" onclick="S.hFilter='${ch}';render();">${ch==='moi'?'Mes mvts':ch[0].toUpperCase()+ch.slice(1)}</div>`).join('')}</div>
+  <div class="search-wrap" style="padding-top:0"><div class="s-rel"><span class="s-icon">🔍</span><input class="s-inp" placeholder="Filtrer..." value="${(S.hSearch||'').replace(/"/g,'&quot;')}" oninput="updateHistList(this.value)" onkeydown="event.stopPropagation()" autocomplete="off" autocorrect="off" autocapitalize="off"></div></div>
+  <div id="hist-list-container">${items}</div>`;
+}
+
+function rAdmin(){
+  const isSuper = S.user.role==='superadmin';
+  const us = Object.entries(S.users).sort(([,a],[,b])=>{
+    if(a.role==='superadmin') return -1;
+    if(b.role==='superadmin') return 1;
+    if(a.role==='admin') return -1;
+    if(b.role==='admin') return 1;
+    return a.nom.localeCompare(b.nom);
+  });
+  const visibleUsers = us.filter(([,u])=> isSuper || u.role!=='superadmin');
+  let rows = '';
+  visibleUsers.forEach(([id,u])=>{
+    const av = ((u.prenom||'?')[0]+(u.nom||'?')[0]).toUpperCase();
+    const on = isOnline(id);
+    const isProtected = (u.role==='superadmin') || (id===S.user.id);
+    const canToggle = !isProtected && u.role!=='admin';
+    const canEdit = !isProtected;
+    const canDel = !isProtected && id!==S.user.id;
+    const roleLabel = u.role==='superadmin'||u.role==='admin' ? 'Admin' : u.role==='lecteur' ? 'Lecteur' : 'Magasinier';
+    const badgeClass = u.role==='superadmin'||u.role==='admin' ? 'ub-admin' : u.role==='lecteur' ? 'ub-lecteur' : 'ub-mag';
+    const statusColor = on ? '#22c55e' : '#9ca3af';
+    const statusText = on ? 'En ligne' : 'Hors ligne';
+    const pinDisplay = (u.role==='superadmin' && !isSuper) ? '—' : '••••';
+    const pinReveal = (u.role!=='superadmin' || isSuper) ? 'onclick="revealPin(this,\''+u.pin+'\')"' : '';
+
+    let actionBtns = '';
+    if(canToggle){
+      const tglClass = u.actif!==false ? 'tgl-on' : 'tgl-off';
+      const tglText = u.actif!==false ? '✓ Actif' : '✗ Inactif';
+      actionBtns += '<button class="tgl '+tglClass+'" onclick="togUser(\''+id+'\')">'+tglText+'</button>';
+    }
+    let editDel = '';
+    if(canEdit){
+      editDel += '<button onclick="openEditUser(\''+id+'\')" style="padding:4px 9px;background:#dbeafe;border:1px solid #93c5fd;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;color:#1565C0;font-family:Inter,sans-serif;">✏️ Modifier</button>';
+    }
+    if(canDel){
+      editDel += '<button onclick="confirmDelete(\''+id+'\')" style="padding:4px 9px;background:#fee2e2;border:1px solid #fca5a5;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;color:#dc2626;font-family:Inter,sans-serif;">🗑️ Suppr.</button>';
+    }
+    if(editDel) actionBtns += '<div style="display:flex;gap:4px;margin-top:4px;">'+editDel+'</div>';
+
+    const lastLogin = (u.role==='superadmin' && !isSuper) ? '—' : fd(u.lastLogin);
+
+    rows += '<div class="u-item">';
+    rows += '<div class="u-av">'+av+'</div>';
+    rows += '<div style="flex:1;min-width:0;">';
+    rows += '<div class="u-name">'+u.prenom+' '+u.nom+'</div>';
+    rows += '<div class="u-info">'+(u.qualification||roleLabel)+'</div>';
+    rows += '<div class="u-info" style="display:flex;align-items:center;gap:4px;margin-top:2px;">';
+    rows += '<span style="width:7px;height:7px;border-radius:50%;background:'+statusColor+';display:inline-block;box-shadow:0 0 5px '+statusColor+'40;"></span>';
+    rows += '<span style="color:'+statusColor+'">'+statusText+'</span></div>';
+    rows += '<div class="u-info">Dernière connexion : <span style="color:#1e4d8c">'+lastLogin+'</span></div>';
+    rows += '<div class="u-info">PIN : <span class="pwd-reveal" '+pinReveal+'>'+pinDisplay+'</span></div>';
+    rows += '</div>';
+    rows += '<div class="u-status">';
+    rows += '<span class="u-badge '+badgeClass+'">'+roleLabel+'</span>';
+    rows += actionBtns;
+    rows += '</div></div>';
+  });
+
+  const total = visibleUsers.length;
+  const onlineCount = visibleUsers.filter(([id])=>isOnline(id)).length;
+  const corrections = S.mvts.filter(m=>m.type==='edit').length;
+  const modifications = S.mvts.filter(m=>m.type==='modification').length;
+
+  return '<div class="adm-pad">'
+    +'<div class="adm-sec">'
+    +'<div class="adm-sec-hdr"><div class="adm-sec-title">👥 ÉQUIPE ('+total+')</div>'
+    +'<button class="btn-xs" onclick="openAddUser()">+ Ajouter</button></div>'
+    +rows
+    +'</div>'
+    +'<div class="adm-sec">'
+    +'<div class="adm-sec-hdr"><div class="adm-sec-title">📊 STATISTIQUES</div></div>'
+    +'<div class="info-box">'
+    +'📦 <strong style="color:var(--t1)">'+Object.keys(S.arts).length+'</strong> références articles<br>'
+    +'🔄 <strong style="color:var(--t1)">'+S.mvts.length+'</strong> mouvements enregistrés<br>'
+    +'✏️ <strong style="color:var(--t1)">'+corrections+'</strong> corrections tracées<br>'
+    +'🔁 <strong style="color:var(--t1)">'+modifications+'</strong> modifications tracées<br>'
+    +'🟢 <strong style="color:var(--t1)">'+onlineCount+'</strong> utilisateurs en ligne'
+    +'</div></div>'
+    +'<div class="adm-sec">'
+    +'<div class="adm-sec-hdr"><div class="adm-sec-title">ℹ️ EYALLINE STOCK PRO</div></div>'
+    +'<div class="info-box">'
+    +'🏭 <strong style="color:var(--t1)">Orient Electronics</strong> · Usine<br>'
+    +'🔥 <strong style="color:var(--t1)">Firebase</strong> · Sync temps réel activée<br>'
+    +'💾 Backup local automatique sur chaque appareil<br>'
+    +'📱 Android : Chrome → ⋮ → "Ajouter à l\'écran d\'accueil"<br>'
+    +'📋 Historique complet · Corrections tracées indéfiniment'
+    +'</div></div>'
+    +((isSuper || S.user.role==='admin') ? '<div class="adm-sec">'
+    +'<div class="adm-sec-hdr"><div class="adm-sec-title">🔄 MISE À JOUR APPLICATION</div></div>'
+    +'<div class="info-box">'
+    +'📱 Version actuelle : <strong style="color:var(--ob)">'+APP_VERSION+'</strong> ('+APP_BUILD+')<br>'
+    +'<div style="margin-top:8px;font-size:11px;color:var(--t3);">Après chaque nouveau fichier HTML partagé, publiez la version pour notifier tous les appareils automatiquement.</div>'
+    +'</div>'
+    +'<button onclick="promptPublishUpdate()" style="width:100%;margin-top:8px;padding:13px;background:linear-gradient(135deg,#1565C0,#0d47a1);color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;">🚀 Publier une mise à jour</button>'
+    +'</div>' : '')
+    +'</div>';
+}
+
+function revealPin(el, pin){
+  el.textContent = el.textContent === pin ? '••••' : pin;
+}
+
+function promptPublishUpdate(){
+  const newVer = prompt('Numéro de version à publier (ex: 1.1.0) :', APP_VERSION);
+  if(!newVer) return;
+  publishUpdate(newVer);
+}
+
+function togUser(id){S.users[id].actif=!(S.users[id].actif!==false);save();render();}
+
+// ═══ MODIFIER UTILISATEUR ═══
+function openEditUser(id){
+  const u=S.users[id];
+  document.getElementById('eu-id').value=id;
+  document.getElementById('eu-prenom').value=u.prenom||'';
+  document.getElementById('eu-nom').value=u.nom||'';
+  document.getElementById('eu-qual').value=u.qualification||'';
+  document.getElementById('eu-role').value=u.role||'magasinier';
+  document.getElementById('eu-pin').value='';
+  document.getElementById('eu-err').style.display='none';
+  document.getElementById('eu-pin-hint').textContent='Laisser vide = PIN inchangé';
+  openModal('mod-edituser');
+}
+function saveEditUser(){
+  const id=document.getElementById('eu-id').value;
+  const p=document.getElementById('eu-prenom').value.trim();
+  const n=document.getElementById('eu-nom').value.trim();
+  const q=document.getElementById('eu-qual').value.trim();
+  const r=document.getElementById('eu-role').value;
+  const pin=document.getElementById('eu-pin').value.trim();
+  const err=document.getElementById('eu-err');
+  if(!p||!n){err.textContent='Prénom et nom requis';err.style.display='block';return;}
+  if(pin&&!/^\d{4}$/.test(pin)){err.textContent='Nouveau PIN = 4 chiffres';err.style.display='block';return;}
+  S.users[id].prenom=p;
+  S.users[id].nom=n;
+  S.users[id].qualification=q;
+  S.users[id].role=r;
+  if(pin) S.users[id].pin=pin;
+  save();fillSelect();closeModal('mod-edituser');render();
+  showToast('te','Utilisateur '+p+' '+n+' modifié avec succès');
+}
+
+// ═══ SUPPRIMER UTILISATEUR ═══
+function confirmDelete(id){
+  const u=S.users[id];
+  document.getElementById('del-id').value=id;
+  document.getElementById('del-name').textContent=u.prenom+' '+u.nom;
+  document.getElementById('del-err').style.display='none';
+  openModal('mod-deluser');
+}
+function deleteUser(){
+  const id=document.getElementById('del-id').value;
+  if(id===S.user.id){
+    document.getElementById('del-err').textContent='Vous ne pouvez pas supprimer votre propre compte';
+    document.getElementById('del-err').style.display='block';return;
+  }
+  const name=S.users[id].prenom+' '+S.users[id].nom;
+  delete S.users[id];
+  delete S.online[id];
+  save();fillSelect();closeModal('mod-deluser');render();
+  showToast('ts','Utilisateur '+name+' supprimé');
+}
+
+// ═══ PROFIL / CHANGER PIN ═══
+function rProfil(){
+  const u=S.user;
+  const av=((u.prenom||'?')[0]+(u.nom||'?')[0]).toUpperCase();
+  return`<div class="profile-pad">
+    <div class="profile-card">
+      <div class="profile-av">${av}</div>
+      <div class="profile-name">${u.prenom} ${u.nom}</div>
+      <div class="profile-role">${u.role==="superadmin"||u.role==="admin"?"Administrateur":u.role==="lecteur"?"Lecteur":"Magasinier"}</div>
+      <div class="profile-qual">${u.qualification||''}</div>
+      <div class="sep"></div>
+      <div style="font-size:11px;color:var(--t3)">Dernière connexion : <span style="color:var(--t2)">${fd(S.users[u.id]?.lastLogin)}</span></div>
+    </div>
+    <div class="adm-sec">
+      <div class="adm-sec-hdr"><div class="adm-sec-title">🔑 Code PIN</div></div>
+      <div class="info-box">
+        Vous pouvez changer votre code PIN à tout moment.<br>Votre ancien PIN vous sera demandé pour confirmer.
+      </div>
+      <div style="padding:0 14px 14px;">
+        <button class="btn-sub bsr" onclick="openModal('mod-pin')">🔑 Changer mon code PIN</button>
+      </div>
+    </div>
+  </div>`;
+}
+function savePin(){
+  const old=document.getElementById('old-pin').value.trim();
+  const nw=document.getElementById('new-pin').value.trim();
+  const nw2=document.getElementById('new-pin2').value.trim();
+  const err=document.getElementById('pin-err');
+  if(S.users[S.user.id].pin!==old){err.textContent='Ancien PIN incorrect';err.classList.add('show');return;}
+  if(!/^\d{4}$/.test(nw)){err.textContent='Nouveau PIN = 4 chiffres';err.classList.add('show');return;}
+  if(nw!==nw2){err.textContent='Les deux nouveaux PINs ne correspondent pas';err.classList.add('show');return;}
+  S.users[S.user.id].pin=nw;S.user.pin=nw;
+  save();closeModal('mod-pin');
+  showToast('te','Code PIN modifié avec succès');
+}
+
+// ═══ AJOUT UTILISATEUR ═══
+function openAddUser(){
+  ['au-prenom','au-nom','au-qual','au-pin'].forEach(i=>{document.getElementById(i).value='';});
+  document.getElementById('au-role').value='magasinier';
+  document.getElementById('au-err').style.display='none';
+  openModal('mod-adduser');
+}
+function saveUser(){
+  const p=document.getElementById('au-prenom').value.trim(),n=document.getElementById('au-nom').value.trim();
+  const q=document.getElementById('au-qual').value.trim(),r=document.getElementById('au-role').value;
+  const pin=document.getElementById('au-pin').value.trim();
+  const err=document.getElementById('au-err');
+  if(!p||!n||!pin){err.textContent='Prénom, nom et PIN requis';err.style.display='block';return;}
+  if(!/^\d{4}$/.test(pin)){err.textContent='PIN = 4 chiffres';err.style.display='block';return;}
+  const id=`${p}_${n}_${Date.now()}`.toLowerCase().replace(/[\s']/g,'_');
+  S.users[id]={prenom:p,nom:n,qualification:q,role:r,pin,actif:true,lastLogin:null};
+  save();fillSelect();closeModal('mod-adduser');render();
+  showToast('te','Utilisateur '+p+' '+n+' créé');
+}
+
+// ═══ DÉTAIL ARTICLE ═══
+function openDet(ref){
+  const a=S.arts[ref];if(!a)return;S.detArt=a;
+  document.getElementById('det-ref').textContent=a.ref;
+  document.getElementById('det-name').textContent=a.designation;
+  const qEl=document.getElementById('det-qty');
+  qEl.textContent=fn(a.qte);qEl.style.color=(a.qte||0)<10?'#ef4444':(a.qte||0)<100?'#f59e0b':'#14b8a6';
+  document.getElementById('edit-qty').value='';document.getElementById('edit-note').value='';
+  const hist=S.mvts.filter(m=>m.ref===ref).slice(0,20);
+  let h=hist.length?'':'<div style="color:var(--t3);padding:8px 0;font-size:13px">Aucun mouvement</div>';
+  hist.forEach(m=>{
+    const sign=m.type==='sortie'?'-':(m.type==='edit'||m.type==='modification')?'→':'+';
+    const qdisp=m.type==='edit'||m.type==='modification'?m.after:m.qty;
+    const numBadge=m.num?`<div class="mv-num" style="margin-bottom:2px;">${m.num}</div>`:'';
+    const modTrace=m.modifiedBy?`<div class="mod-trace" style="font-size:9px;">✏️ Modifié → ${m.modifiedBy}</div>`:'';
+    const origRef=m.origMvtNum?`<div style="font-size:9px;color:#be185d;">← ${m.origMvtNum}</div>`:'';
+    h+=`<div class="mv-item" style="padding:9px 0"><div class="mv-badge ${tmc(m.type)}">${ti(m.type)}</div><div class="mv-info">${numBadge}<div class="mv-meta">${m.user} · ${fd(m.date)}</div>${m.note?`<div style="font-size:10px;color:var(--t3)">"${m.note}"</div>`:''} ${origRef} ${modTrace}</div><div><div class="mv-qty ${tqc(m.type)}">${m.type!=='edit'&&m.type!=='modification'?sign:''}${qdisp}</div><div class="mv-after">→${fn(m.after)}</div></div></div>`;
+  });
+  document.getElementById('det-hist').innerHTML=h;
+  openModal('mod-detail');
+}
+function detMv(type){closeModal('mod-detail');S.mvtType=type;S.mvtArt=S.detArt;S.mvtSearch='';S.mvtQty=1;S.mvtNote='';goTab('mouvement');}
+function submitEdit(){if(S.user.role==='lecteur'){showToast('ts','Accès refusé — compte lecture seule');return;}
+  const newQty=parseInt(document.getElementById('edit-qty').value);
+  const note=document.getElementById('edit-note').value.trim();
+  if(isNaN(newQty)||newQty<0){showToast('ts','Quantité invalide');return;}
+  if(!note){showToast('ts','Le motif de correction est obligatoire');return;}
+  const a=S.detArt;
+  const before=a.qte||0;
+  const num=nextMvtNum();
+  S.arts[a.ref].qte=newQty;
+  S.mvts.unshift({num,id:Date.now().toString(),ref:a.ref,designation:a.designation,type:'edit',qty:Math.abs(newQty-before),before,after:newQty,user:S.user.prenom+' '+S.user.nom,uid:S.user.id,note:'[CORRECTION] '+note,date:Date.now()});
+  save();
+  closeModal('mod-detail');
+  showToast('tw','Correction enregistrée : '+fn(before)+' → '+fn(newQty)+' pcs · '+num);
+  render();
+}
+
+// ═══ MODIFICATION DEPUIS HISTORIQUE ═══
+let _mmodTab='qty'; // 'qty' ou 'art'
+let _mmodNewArt=null;
+
+function mmodTab(tab){
+  _mmodTab=tab;_mmodNewArt=null;
+  const qBtn=document.getElementById('mmod-tab-qty');
+  const aBtn=document.getElementById('mmod-tab-art');
+  const qPane=document.getElementById('mmod-pane-qty');
+  const aPane=document.getElementById('mmod-pane-art');
+  if(tab==='qty'){
+    qBtn.style.cssText='padding:11px 6px;border-radius:10px;border:2px solid var(--ob);background:var(--bg4);color:var(--ob);font-size:12px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;';
+    aBtn.style.cssText='padding:11px 6px;border-radius:10px;border:2px solid var(--brd);background:#fff;color:var(--t3);font-size:12px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;';
+    qPane.style.display='';aPane.style.display='none';
+  } else {
+    aBtn.style.cssText='padding:11px 6px;border-radius:10px;border:2px solid #be185d;background:#fce7f3;color:#be185d;font-size:12px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;';
+    qBtn.style.cssText='padding:11px 6px;border-radius:10px;border:2px solid var(--brd);background:#fff;color:var(--t3);font-size:12px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;';
+    qPane.style.display='none';aPane.style.display='';
+  }
+}
+
+function mmodSearchArt(val){
+  const q=val.toLowerCase().trim();
+  const sugg=document.getElementById('mmod-art-sugg');
+  if(!q){sugg.innerHTML='';return;}
+  const res=Object.values(S.arts).filter(a=>a.ref.toLowerCase().includes(q)||a.designation.toLowerCase().includes(q)).slice(0,8);
+  if(!res.length){sugg.innerHTML='';return;}
+  sugg.innerHTML=`<div class="sugg-list">${res.map(a=>`<div class="sugg-item" onclick="mmodPickArt('${a.ref.replace(/'/g,"\\'")}')">`
+    +`<div class="sugg-ref">${a.ref}</div><div class="sugg-name">${a.designation}</div><div class="sugg-stk">Stock: ${fn(a.qte)} pcs</div></div>`).join('')}</div>`;
+}
+
+function mmodPickArt(ref){
+  const a=S.arts[ref];if(!a)return;
+  _mmodNewArt=a;
+  document.getElementById('mmod-art-search').value='';
+  document.getElementById('mmod-art-sugg').innerHTML='';
+  document.getElementById('mmod-art-sel-ref').textContent=a.ref;
+  document.getElementById('mmod-art-sel-name').textContent=a.designation;
+  document.getElementById('mmod-art-sel-stk').textContent='Stock actuel : '+fn(a.qte)+' pcs';
+  document.getElementById('mmod-art-sel').style.display='block';
+}
+
+function mmodClearArt(){
+  _mmodNewArt=null;
+  document.getElementById('mmod-art-search').value='';
+  document.getElementById('mmod-art-sugg').innerHTML='';
+  document.getElementById('mmod-art-sel').style.display='none';
+}
+
+function openModifyMvt(mvtId){
+  if(S.user.role==='lecteur'){showToast('ts','Accès refusé — compte lecture seule');return;}
+  const m=S.mvts.find(x=>x.id===mvtId);
+  if(!m){showToast('ts','Mouvement introuvable');return;}
+  S._modifyTarget=m;
+  _mmodTab='qty';_mmodNewArt=null;
+  document.getElementById('mmod-num').textContent=m.num||m.id;
+  document.getElementById('mmod-ref').textContent=m.ref;
+  document.getElementById('mmod-name').textContent=m.designation;
+  document.getElementById('mmod-type').textContent=tl(m.type);
+  document.getElementById('mmod-orig-qty').textContent=(m.type==='edit'||m.type==='modification')?fn(m.after):((m.type==='sortie'?'-':'+')+fn(m.qty));
+  document.getElementById('mmod-orig-stock').textContent='Stock après : '+fn(m.after)+' pcs';
+  document.getElementById('mmod-orig-date').textContent=fd(m.date);
+  document.getElementById('mmod-orig-user').textContent=m.user;
+  document.getElementById('mmod-new-qty').value='';
+  document.getElementById('mmod-new-qty-art').value='';
+  document.getElementById('mmod-note').value='';
+  document.getElementById('mmod-art-search').value='';
+  document.getElementById('mmod-art-sugg').innerHTML='';
+  document.getElementById('mmod-art-sel').style.display='none';
+  document.getElementById('mmod-err').style.display='none';
+  // Reset tabs
+  document.getElementById('mmod-pane-qty').style.display='';
+  document.getElementById('mmod-pane-art').style.display='none';
+  document.getElementById('mmod-tab-qty').style.cssText='padding:11px 6px;border-radius:10px;border:2px solid var(--ob);background:var(--bg4);color:var(--ob);font-size:12px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;';
+  document.getElementById('mmod-tab-art').style.cssText='padding:11px 6px;border-radius:10px;border:2px solid var(--brd);background:#fff;color:var(--t3);font-size:12px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;';
+  openModal('mod-modify');
+}
+
+function submitModifyMvt(){
+  if(S.user.role==='lecteur'){showToast('ts','Accès refusé');return;}
+  const m=S._modifyTarget;if(!m)return;
+  const note=document.getElementById('mmod-note').value.trim();
+  const err=document.getElementById('mmod-err');
+  err.style.display='none';
+  if(!note){err.textContent='Le motif de modification est obligatoire';err.style.display='block';return;}
+
+  const num=nextMvtNum();
+  const now=Date.now();
+  const byUser=S.user.prenom+' '+S.user.nom;
+
+  if(_mmodTab==='qty'){
+    // ── Modification de quantité ──
+    const newQty=parseInt(document.getElementById('mmod-new-qty').value);
+    if(isNaN(newQty)||newQty<0){err.textContent='Quantité invalide';err.style.display='block';return;}
+    const art=S.arts[m.ref];
+    if(!art){err.textContent='Article introuvable';err.style.display='block';return;}
+    const stockBefore=art.qte||0;
+    const stockAfter=Math.max(0,stockBefore-(m.after||0)+newQty);
+    S.arts[m.ref].qte=stockAfter;
+    S.mvts.unshift({num,id:now.toString(),ref:m.ref,designation:m.designation,
+      type:'modification',qty:Math.abs(newQty-(m.after||0)),before:stockBefore,after:stockAfter,
+      user:byUser,uid:S.user.id,
+      note:'[MOD QTÉ / '+( m.num||m.id)+'] '+note,
+      origMvtId:m.id,origMvtNum:m.num||m.id,modWhat:'quantite',date:now});
+    // Trace sur l'original
+    const idx=S.mvts.findIndex(x=>x.id===m.id);
+    if(idx!==-1){S.mvts[idx].modifiedBy=num;S.mvts[idx].modifiedAt=now;S.mvts[idx].modifiedByUser=byUser;}
+    save();closeModal('mod-modify');
+    showToast('tw','Modification quantité · '+num+' · Stock: '+fn(stockAfter)+' pcs');
+
+  } else {
+    // ── Modification d'article ──
+    if(!_mmodNewArt){err.textContent='Veuillez sélectionner le nouvel article';err.style.display='block';return;}
+    const newQtyRaw=document.getElementById('mmod-new-qty-art').value;
+    const newQty=newQtyRaw!==''?parseInt(newQtyRaw):m.qty||0;
+    if(isNaN(newQty)||newQty<0){err.textContent='Quantité invalide pour le nouvel article';err.style.display='block';return;}
+
+    // Annuler l'effet sur l'article original
+    const origArt=S.arts[m.ref];
+    if(origArt){
+      // Restaurer le stock original: inverser le mouvement
+      const origDelta=m.type==='sortie'?m.qty:-(m.qty||0);
+      origArt.qte=Math.max(0,(origArt.qte||0)+origDelta);
+    }
+    // Appliquer sur le nouvel article
+    const newArtBefore=_mmodNewArt.qte||0;
+    const newArtAfter=m.type==='sortie'?Math.max(0,newArtBefore-newQty):newArtBefore+newQty;
+    S.arts[_mmodNewArt.ref].qte=newArtAfter;
+
+    S.mvts.unshift({num,id:now.toString(),ref:_mmodNewArt.ref,designation:_mmodNewArt.designation,
+      type:'modification',qty:newQty,before:newArtBefore,after:newArtAfter,
+      user:byUser,uid:S.user.id,
+      note:'[MOD ARTICLE '+m.ref+'→'+_mmodNewArt.ref+' / '+(m.num||m.id)+'] '+note,
+      origMvtId:m.id,origMvtNum:m.num||m.id,origRef:m.ref,modWhat:'article',date:now});
+    // Trace sur l'original
+    const idx=S.mvts.findIndex(x=>x.id===m.id);
+    if(idx!==-1){S.mvts[idx].modifiedBy=num;S.mvts[idx].modifiedAt=now;S.mvts[idx].modifiedByUser=byUser;S.mvts[idx].modifiedToRef=_mmodNewArt.ref;}
+    save();closeModal('mod-modify');
+    showToast('tw','Modification article · '+num+' · '+_mmodNewArt.ref+' : '+fn(newArtAfter)+' pcs');
+  }
+  render();
+}
+
+// ═══ MODALS ═══
+function openModal(id){document.getElementById(id).classList.add('show');}
+function closeModal(id){document.getElementById(id).classList.remove('show');}
+
+// ═══ TOAST ═══
+let _tt;
+function showToast(cls,msg){
+  const el=document.getElementById('toast');el.textContent='✅ '+msg;
+  el.className=`toast ${cls} show`;clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),3200);
+}
+
+// ═══ SEARCH WITHOUT RE-RENDER (fixes keyboard dismiss) ═══
+
+function updateStockList(val){
+  S.sSearch = val;
+  const q = val.toLowerCase().trim();
+  const list = Object.values(S.arts)
+    .filter(a=>!q||a.ref.toLowerCase().includes(q)||a.designation.toLowerCase().includes(q))
+    .sort((a,b)=>a.ref.localeCompare(b.ref));
+  const container = document.getElementById('stock-list-container');
+  if(!container) return;
+  if(!list.length){
+    container.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><div>Aucun résultat</div></div>`;
+    return;
+  }
+  container.innerHTML = list.map(a=>
+    `<div class="art-item" onclick="openDet('${a.ref.replace(/'/g,"\\'")}')">
+      <div class="art-ref">${a.ref}</div>
+      <div class="art-name">${a.designation}</div>
+      <div class="art-qty ${qc(a.qte||0)}">${fn(a.qte)}</div>
+    </div>`
+  ).join('');
+}
+
+function updateMvtSearch(val){
+  S.mvtSearch = val;
+  S.mvtArt = null;
+  const q = val.toLowerCase();
+  const container = document.getElementById('mvt-sugg-container');
+  if(!container) return;
+  if(!val.trim()){container.innerHTML='';return;}
+  const res = Object.values(S.arts)
+    .filter(a=>a.ref.toLowerCase().includes(q)||a.designation.toLowerCase().includes(q))
+    .slice(0,8);
+  if(!res.length){container.innerHTML='';return;}
+  container.innerHTML = `<div class="sugg-list">${res.map(a=>
+    `<div class="sugg-item" onclick="pickArt('${a.ref.replace(/'/g,"\\'")}')">
+      <div class="sugg-ref">${a.ref}</div>
+      <div class="sugg-name">${a.designation}</div>
+      <div class="sugg-stk">Stock: ${fn(a.qte)} pcs</div>
+    </div>`
+  ).join('')}</div>`;
+}
+
+function updateHistList(val){
+  S.hSearch = val;
+  const f = S.hFilter||'tous';
+  const td = new Date().toDateString(), wk = Date.now()-7*86400000;
+  const q = val.toLowerCase();
+  const list = S.mvts.filter(m=>{
+    if(f==='entrees')return m.type==='entree';if(f==='sorties')return m.type==='sortie';
+    if(f==='retours')return m.type==='retour';if(f==='corrections')return m.type==='edit';
+    if(f==='modifications')return m.type==='modification';
+    if(f==="aujourd'hui")return new Date(m.date).toDateString()===td;
+    if(f==='semaine')return m.date>=wk;if(f==='moi')return m.uid===S.user.id;return true;
+  }).filter(m=>!q||m.ref.toLowerCase().includes(q)||m.designation.toLowerCase().includes(q)||(m.num&&m.num.toLowerCase().includes(q)));
+  const container = document.getElementById('hist-list-container');
+  if(!container) return;
+  if(!list.length){container.innerHTML=`<div class="empty"><div class="empty-icon">📭</div><div>Aucun enregistrement</div></div>`;return;}
+  container.innerHTML = list.map(m=>{
+    const sign=m.type==='sortie'?'-':(m.type==='edit'||m.type==='modification')?'→':'+';
+    const qd=m.type==='edit'||m.type==='modification'?m.after:m.qty;
+    const numBadge=m.num?`<div class="mv-num">${m.num}</div>`:'';
+    const modifiedTrace=m.modifiedBy?`<div class="mod-trace">✏️ Modifié (${m.modifiedToRef?'article→'+m.modifiedToRef:'quantité'}) par ${m.modifiedByUser} · ${m.modifiedBy} · ${fd(m.modifiedAt)}</div>`:'';
+    const canModify=(S.user&&(S.user.role==='admin'||S.user.role==='superadmin'||S.user.role==='magasinier'))&&m.type!=='modification'&&!m.modifiedBy;
+    const modBtn=canModify?`<button class="btn-modif" onclick="openModifyMvt('${m.id}')">✏️ Modifier</button>`:'';
+    return `<div class="mv-item" style="flex-wrap:wrap;gap:4px;">
+      <div class="mv-badge ${tmc(m.type)}">${ti(m.type)}</div>
+      <div class="mv-info">
+        ${numBadge}
+        <div class="mv-ref">${m.ref}</div>
+        <div class="mv-desc">${m.designation}</div>
+        <div class="mv-meta">${m.user} · ${fd(m.date)}</div>
+        ${m.note?('<div style="font-size:10px;color:var(--t3);font-style:italic">"'+(m.note)+'"</div>'):''}
+        ${m.origMvtNum?`<div style="font-size:10px;color:#be185d;">← Réf. originale : ${m.origMvtNum}</div>`:''}
+        ${modifiedTrace}
+      </div>
+      <div style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+        <div class="mv-qty ${tqc(m.type)}">${m.type!=='edit'&&m.type!=='modification'?sign:''}${qd}</div>
+        <div class="mv-after">→${fn(m.after)}</div>
+        ${modBtn}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function updateQtyDisplay(){
+  const qty = S.mvtQty||0;
+  const qv = document.getElementById('qv');
+  if(qv) qv.value = qty||'';
+  // Update warn
+  const t = S.mvtType, sel = S.mvtArt;
+  const warnEl = document.getElementById('qty-warn');
+  if(warnEl){
+    warnEl.style.display = (t==='sortie'&&sel&&qty>(sel.qte||0)) ? 'block' : 'none';
+  }
+  // Update submit button
+  const btn = document.getElementById('bsub');
+  if(btn){
+    const ok = sel && (t==='edit' ? qty>=0 : (qty>=1 && !(t==='sortie'&&qty>(sel.qte||0))));
+    btn.disabled = !ok;
+  }
+}
+
+// ═══ INIT ═══
+init();
+</script>
+</body>
+</html>
+
+</body>
+</html>
+</body>
+</html>
